@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-USERS = []
+USERS_DB = []
 
 class UserCreate(BaseModel):
     name: str
@@ -12,5 +12,10 @@ class UserCreate(BaseModel):
 
 @router.post("/register")
 def register_user(user: UserCreate):
-    USERS.append(user)
-    return {"message": "User registered successfully", "user": user}
+
+    USERS_DB.append(user.dict())
+
+    return {
+        "message": "User registered successfully",
+        "user": user
+    }
