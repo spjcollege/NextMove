@@ -1,17 +1,23 @@
-import {useEffect,useState} from "react";
+import { useEffect,useState } from "react";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function ProductList({addToCart}){
 
 const [products,setProducts]=useState([]);
 const [search,setSearch]=useState("");
 
-useEffect(()=>{
+const loadProducts=()=>{
 
 axios
 .get("http://127.0.0.1:8000/products")
 .then(res=>setProducts(res.data));
+
+};
+
+useEffect(()=>{
+
+loadProducts();
 
 },[]);
 
@@ -36,7 +42,7 @@ Boards, Pieces & Accessories for Serious Players
 </div>
 
 <input
-className="border p-2 mb-6 w-full max-w-md"
+className="border p-2 mb-6 w-full max-w-md bg-white text-black"
 placeholder="Search products..."
 onChange={(e)=>setSearch(e.target.value)}
 />
@@ -65,15 +71,24 @@ className="rounded mb-3"
 ₹{product.price}
 </p>
 
+<p className="text-sm text-gray-500">
+Stock: {product.stock}
+</p>
+
 <div className="text-yellow-400">
 ★★★★☆
 </div>
 
 <button
+disabled={product.stock===0}
 onClick={()=>addToCart(product)}
-className="mt-3 bg-yellow-500 px-4 py-2 rounded text-black"
+className={`mt-3 px-4 py-2 rounded text-black
+${product.stock===0
+? "bg-gray-400"
+: "bg-yellow-500"}
+`}
 >
-Add to Cart
+{product.stock===0 ? "Out of Stock" : "Add to Cart"}
 </button>
 
 </div>

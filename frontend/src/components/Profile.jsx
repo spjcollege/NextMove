@@ -1,4 +1,4 @@
-import {useEffect,useState} from "react";
+import { useEffect,useState } from "react";
 import axios from "axios";
 
 function Profile(){
@@ -11,7 +11,15 @@ useEffect(()=>{
 
 axios
 .get("http://127.0.0.1:8000/orders")
-.then(res=>setOrders(res.data));
+.then(res=>{
+
+const userOrders=res.data.filter(
+o=>o.user===user.email
+);
+
+setOrders(userOrders);
+
+});
 
 },[]);
 
@@ -22,7 +30,6 @@ return <p>Please login first</p>;
 const logout=()=>{
 
 localStorage.removeItem("user");
-
 window.location="/";
 
 };
@@ -51,13 +58,23 @@ Profile Information
 <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded">
 
 <h3 className="text-xl mb-2">
-Orders
+Your Orders
 </h3>
 
+{orders.length===0 && <p>No orders yet</p>}
+
 {orders.map((order,i)=>(
-<div key={i}>
-Order #{i+1} – {order.items.length} items
+
+<div key={i} className="border-b py-2">
+
+Order #{i+1}
+
+<p className="text-sm">
+Items: {order.items.length}
+</p>
+
 </div>
+
 ))}
 
 </div>

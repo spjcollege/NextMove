@@ -4,55 +4,65 @@ import axios from "axios";
 
 function ProductDetail({addToCart}){
 
-  const {id} = useParams();
-  const [product,setProduct] = useState(null);
+const {id}=useParams();
+const [product,setProduct]=useState(null);
 
-  useEffect(()=>{
+useEffect(()=>{
 
-    axios
-      .get("http://127.0.0.1:8000/products")
-      .then(res=>{
+axios
+.get("http://127.0.0.1:8000/products")
+.then(res=>{
 
-        const item = res.data.find(p=>p.id==id);
-        setProduct(item);
+const item=res.data.find(p=>p.id==id);
+setProduct(item);
 
-      });
+});
 
-  },[id]);
+},[id]);
 
-  if(!product) return <p>Loading...</p>;
+if(!product) return <p>Loading...</p>;
 
-  return(
+return(
 
-    <div className="max-w-xl">
+<div className="max-w-xl">
 
-      <img
-        src="https://source.unsplash.com/500x300/?chess"
-        className="rounded mb-4"
-      />
+<img
+src="https://source.unsplash.com/500x300/?chess"
+className="rounded mb-4"
+/>
 
-      <h2 className="text-3xl mb-2">
-        {product.name}
-      </h2>
+<h2 className="text-3xl mb-2">
+{product.name}
+</h2>
 
-      <p className="text-yellow-500 text-xl">
-        ₹{product.price}
-      </p>
+<p className="text-yellow-500 text-xl">
+₹{product.price}
+</p>
 
-      <div className="text-yellow-400 mt-2">
-        ★★★★☆
-      </div>
+<p className="text-gray-500">
+Stock available: {product.stock}
+</p>
 
-      <button
-        onClick={()=>addToCart(product)}
-        className="mt-4 bg-yellow-500 px-4 py-2 rounded text-black"
-      >
-        Add to Cart
-      </button>
+<div className="text-yellow-400 mt-2">
+★★★★☆
+</div>
 
-    </div>
+<button
+disabled={product.stock===0}
+onClick={()=>addToCart(product)}
+className={`mt-4 px-4 py-2 rounded text-black
+${product.stock===0
+? "bg-gray-400"
+: "bg-yellow-500"}
+`}
+>
+{product.stock===0 ? "Out of Stock" : "Add to Cart"}
+</button>
 
-  )
+</div>
+
+)
+
 }
 
 export default ProductDetail

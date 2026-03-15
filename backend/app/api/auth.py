@@ -5,8 +5,10 @@ from app.api.users import USERS_DB
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 class Login(BaseModel):
+
     email: str
     password: str
+
 
 @router.post("/login")
 def login_user(data: Login):
@@ -20,4 +22,7 @@ def login_user(data: Login):
                 "user": user
             }
 
-    raise HTTPException(status_code=401, detail="Invalid credentials")
+    raise HTTPException(
+        status_code=401,
+        detail="Invalid credentials"
+    )
