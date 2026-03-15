@@ -3,56 +3,64 @@ import axios from "axios";
 
 function Register() {
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name,setName] = useState("");
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
+  const [address,setAddress] = useState("");
+  const [phone,setPhone] = useState("");
 
   const registerUser = async () => {
 
     await axios.post(
       "http://127.0.0.1:8000/users/register",
-      { name, email, password }
+      {name,email,password,address,phone}
     );
 
-    alert("User registered successfully");
-
+    alert("User registered");
   };
 
-  return (
+  return(
 
     <div className="max-w-sm">
 
-      <h2 className="text-2xl mb-4">Register</h2>
+      <h2 className="text-2xl mb-4">Create Account</h2>
 
-      <input
-        className="p-2 border mb-2 w-full bg-gray-800"
-        placeholder="Name"
-        onChange={(e) => setName(e.target.value)}
+      <input className="p-2 border mb-2 w-full"
+        placeholder="Full Name"
+        onChange={(e)=>setName(e.target.value)}
       />
 
-      <input
-        className="p-2 border mb-2 w-full bg-gray-800"
+      <input className="p-2 border mb-2 w-full"
         placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e)=>setEmail(e.target.value)}
       />
 
-      <input
-        type="password"
-        className="p-2 border mb-2 w-full bg-gray-800"
+      <input className="p-2 border mb-2 w-full"
+        placeholder="Phone"
+        onChange={(e)=>setPhone(e.target.value)}
+      />
+
+      <input className="p-2 border mb-2 w-full"
+        placeholder="Address"
+        onChange={(e)=>setAddress(e.target.value)}
+      />
+
+      <input type="password"
+        className="p-2 border mb-2 w-full"
         placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e)=>setPassword(e.target.value)}
       />
 
       <button
         onClick={registerUser}
-        className="bg-yellow-500 px-4 py-2 rounded text-black"
+        className="bg-yellow-500 px-4 py-2 rounded"
       >
         Register
       </button>
 
     </div>
 
-  );
+  )
 }
 
-export default Register;
+export default Register

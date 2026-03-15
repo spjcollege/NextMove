@@ -9,6 +9,8 @@ class UserCreate(BaseModel):
     name: str
     email: str
     password: str
+    address: str | None = None
+    phone: str | None = None
 
 @router.post("/register")
 def register_user(user: UserCreate):
