@@ -1,121 +1,71 @@
-import { useState,useEffect } from "react";
-import { Routes,Route,Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { useState } from "react"
 
-import ProductList from "./components/ProductList";
-import ProductDetail from "./components/ProductDetail";
-import Cart from "./components/Cart";
-import Checkout from "./components/Checkout";
-import Auth from "./components/Auth";
-import Profile from "./components/Profile";
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
+
+import Home from "./pages/Home"
+import ProductDetail from "./pages/ProductDetail"
+import Cart from "./pages/Cart"
+import Checkout from "./pages/Checkout"
+import Profile from "./pages/Profile"
 
 function App(){
 
-const [cart,setCart]=useState([]);
-const [user,setUser]=useState(null);
+const [cart,setCart] = useState([])
 
-useEffect(()=>{
+const addToCart = (product) => {
 
-const storedUser=localStorage.getItem("user");
+setCart([...cart,product])
 
-if(storedUser){
-setUser(JSON.parse(storedUser));
 }
-
-},[]);
-
-const addToCart=(product)=>{
-
-if(!user){
-alert("Please login first");
-return;
-}
-
-setCart([...cart,product]);
-
-};
-
-const toggleTheme=()=>{
-
-document.documentElement.classList.toggle("dark");
-
-};
-
-const logout=()=>{
-
-localStorage.removeItem("user");
-setUser(null);
-
-};
 
 return(
 
-<div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
+<BrowserRouter>
 
-<nav className="flex justify-between items-center px-10 py-4 bg-gray-100 dark:bg-black shadow">
+<div className="min-h-screen flex flex-col">
 
-<h1 className="text-3xl font-bold text-yellow-500">
-NextMove
-</h1>
+<Navbar cartCount={cart.length} />
 
-<div className="flex gap-6 items-center">
-
-<Link to="/">Products</Link>
-
-<Link to="/cart">Cart ({cart.length})</Link>
-
-{user ? (
-
-<>
-<Link to="/profile">Profile</Link>
-
-<button
-onClick={logout}
-className="bg-red-500 px-3 py-1 rounded text-white"
->
-Logout
-</button>
-</>
-
-):(
-
-<Link to="/auth">
-Login / Register
-</Link>
-
-)}
-
-<button
-onClick={toggleTheme}
-className="bg-yellow-500 px-3 py-1 rounded text-black"
->
-Theme
-</button>
-
-</div>
-
-</nav>
-
-<div className="p-10">
+<main className="flex-1">
 
 <Routes>
 
-<Route path="/" element={<ProductList addToCart={addToCart}/>}/>
+<Route
+path="/"
+element={<Home addToCart={addToCart}/>}
+/>
 
-<Route path="/product/:id" element={<ProductDetail addToCart={addToCart}/>}/>
+<Route
+path="/product/:id"
+element={<ProductDetail addToCart={addToCart}/>}
+/>
 
-<Route path="/cart" element={<Cart cart={cart}/>}/>
+<Route
+path="/cart"
+element={<Cart cart={cart}/>}
+/>
 
-<Route path="/checkout" element={<Checkout cart={cart}/>}/>
+<Route
+path="/checkout"
+element={<Checkout cart={cart}/>}
+/>
 
-<Route path="/auth" element={<Auth setUser={setUser}/>}/>
-
-<Route path="/profile" element={<Profile/>}/>
+<Route
+path="/profile"
+element={<Profile/>}
+/>
 
 </Routes>
 
-</div>
+</main>
+
+<Footer/>
 
 </div>
+
+</BrowserRouter>
 
 )
 
