@@ -1,43 +1,36 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNotification } from "../hooks/useNotification";
 
 function Auth({setUser}){
 
 const [isLogin,setIsLogin]=useState(true);
 
-const [name,setName]=useState("");
-const [email,setEmail]=useState("");
+const [username,setUsername]=useState("");
 const [password,setPassword]=useState("");
+const notify = useNotification();
 
 const submit=async()=>{
 
+
 if(isLogin){
-
-const res=await axios.post(
-"http://127.0.0.1:8000/auth/login",
-{email,password}
-);
-
-localStorage.setItem(
-"user",
-JSON.stringify(res.data.user)
-);
-
-setUser(res.data.user);
-
-alert("Login successful");
-
+	const res=await axios.post(
+		"http://127.0.0.1:8000/auth/login",
+		{username,password}
+	);
+	localStorage.setItem(
+		"user",
+		JSON.stringify(res.data.user)
+	);
+	setUser(res.data.user);
+	notify.success("Login successful");
 }else{
-
-await axios.post(
-"http://127.0.0.1:8000/users/register",
-{name,email,password}
-);
-
-alert("Registration successful");
-
-setIsLogin(true);
-
+	await axios.post(
+		"http://127.0.0.1:8000/users/register",
+		{username,password}
+	);
+	notify.success("Registration successful");
+	setIsLogin(true);
 }
 
 };
@@ -52,21 +45,16 @@ return(
 
 </h2>
 
-{!isLogin && (
+
 
 <input
-className="p-2 border mb-2 w-full bg-white text-black"
-placeholder="Name"
-onChange={(e)=>setName(e.target.value)}
+	className="p-2 border mb-2 w-full bg-white text-black"
+	placeholder="Username"
+	value={username}
+	onChange={(e)=>setUsername(e.target.value)}
 />
 
-)}
 
-<input
-className="p-2 border mb-2 w-full bg-white text-black"
-placeholder="Email"
-onChange={(e)=>setEmail(e.target.value)}
-/>
 
 <input
 type="password"

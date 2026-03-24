@@ -1,32 +1,35 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../hooks/useNotification";
 
 function Checkout({cart}){
 
 const navigate=useNavigate();
+const notify = useNotification();
 
 const placeOrder=async()=>{
 
 const user=JSON.parse(localStorage.getItem("user"));
 
 if(!user){
-alert("Login required");
+notify.warning("Login required");
 return;
 }
 
-await axios.post(
-"http://127.0.0.1:8000/orders/place",
-{
-user:user.email,
-items:cart
+try {
+  await axios.post(
+    "http://127.0.0.1:8000/orders/place",
+    {
+      userId: user.id,
+      username: user.username,
+      items:cart
+    }
+  );
+  notify.success("Order placed successfully");
+  navigate("/profile");
+} catch (err) {
+  notify.error("Error: " + (err.response?.data?.detail || err.message));
 }
-);
-
-alert("Order placed successfully");
-
-navigate("/profile");
-
-};
 
 return(
 

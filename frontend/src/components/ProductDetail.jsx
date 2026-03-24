@@ -1,10 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { productMeta } from "../productMeta";
+import { useNotification } from "../hooks/useNotification";
 
 function ProductDetail({ addToCart }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const notify = useNotification();
 
   // 🔥 Track count for alert
   const [addedCount, setAddedCount] = useState(0);
@@ -29,8 +31,8 @@ function ProductDetail({ addToCart }) {
     const newCount = addedCount + 1;
     setAddedCount(newCount);
 
-    // ✅ SIMPLE ALERT
-    alert(`Added ${product.id} x${newCount}`);
+    // ✅ SIMPLE NOTIFICATION
+    notify.success(`Added ${product.name} x${newCount}`);
   };
 
   return (

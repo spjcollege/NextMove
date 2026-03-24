@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNotification } from "../hooks/useNotification";
 
 function Register() {
 
@@ -8,6 +9,7 @@ function Register() {
   const [password,setPassword] = useState("");
   const [address,setAddress] = useState("");
   const [phone,setPhone] = useState("");
+  const notify = useNotification();
 
   const registerUser = async () => {
 
@@ -16,7 +18,7 @@ function Register() {
       {name,email,password,address,phone}
     );
 
-    alert("User registered");
+    notify.success("User registered");
   };
 
   return(

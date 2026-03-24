@@ -14,7 +14,7 @@ axios
 .then(res=>{
 
 const userOrders=res.data.filter(
-o=>o.user===user.email
+o=>o.userId===user.id || o.username===user.username
 );
 
 setOrders(userOrders);
@@ -50,8 +50,8 @@ Your Account
 Profile Information
 </h3>
 
-<p><b>Name:</b> {user.name}</p>
-<p><b>Email:</b> {user.email}</p>
+<p><b>Username:</b> {user.username}</p>
+<p><b>ID:</b> {user.id}</p>
 
 </div>
 

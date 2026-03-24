@@ -1,16 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../hooks/useNotification";
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({
-    name: "",
-    email: "",
+    username: "",
     password: ""
   });
 
   const navigate = useNavigate();
+  const notify = useNotification();
 
   const handleSubmit = async () => {
     try {
@@ -18,25 +19,23 @@ function Auth() {
         const res = await axios.post(
           "http://127.0.0.1:8000/auth/login",
           {
-            email: form.email,
+            username: form.username,
             password: form.password
           }
         );
-
         localStorage.setItem("user", JSON.stringify(res.data.user));
-        alert("Login successful");
+        notify.success("Login successful");
         navigate("/");
       } else {
         await axios.post(
           "http://127.0.0.1:8000/users/register",
           form
         );
-
-        alert("Registered! Now login.");
+        notify.success("Registered! Now login.");
         setIsLogin(true);
       }
     } catch (err) {
-      alert("Error: " + (err.response?.data?.detail || "Something went wrong"));
+      notify.error("Error: " + (err.response?.data?.detail || "Something went wrong"));
     }
   };
 
@@ -47,23 +46,15 @@ function Auth() {
         {isLogin ? "Login" : "Register"}
       </h2>
 
-      {!isLogin && (
-        <input
-          placeholder="Name"
-          className="border p-2 w-full mb-2"
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
-      )}
-
       <input
-        placeholder="Email"
+        placeholder="Username"
         className="border p-2 w-full mb-2"
+        value={form.username}
         onChange={(e) =>
-          setForm({ ...form, email: e.target.value })
+          setForm({ ...form, username: e.target.value })
         }
       />
+
 
       <input
         type="password"
