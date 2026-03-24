@@ -7,36 +7,38 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import Courses from "./pages/Courses";
+import Community from "./pages/Community"; // 🔥 NEW
 
 function App() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Load cart
+  // 🔥 Load cart
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart"));
     if (savedCart) setCart(savedCart);
   }, []);
 
-  // Save cart
+  // 🔥 Save cart
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Load user
+  // 🔥 Load user
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) setUser(storedUser);
   }, []);
 
-  // Logout
+  // 🔥 Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
   };
 
-  // Add to cart
+  // 🔥 Add to cart
   const addToCart = (product) => {
     const existing = cart.find((item) => item.id === product.id);
 
@@ -49,16 +51,16 @@ function App() {
         )
       );
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      setCart([...cart, { id: product.id, quantity: 1 }]);
     }
   };
 
-  // Remove
+  // 🔥 Remove item
   const removeFromCart = (id) => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
-  // Update qty
+  // 🔥 Update quantity
   const updateQuantity = (id, qty) => {
     if (qty <= 0) return;
 
@@ -73,10 +75,9 @@ function App() {
     <BrowserRouter>
       <div className="min-h-screen flex flex-col bg-gray-100">
 
-        {/* NAVBAR */}
+        {/* 🔥 NAVBAR */}
         <nav className="flex justify-between px-10 py-4 bg-white shadow items-center">
 
-          {/* 🔥 CLICKABLE TITLE */}
           <Link to="/">
             <h1 className="font-bold text-lg cursor-pointer">
               NextMove Chess Store
@@ -86,6 +87,11 @@ function App() {
           <div className="flex gap-6 items-center">
 
             <Link to="/">Shop</Link>
+
+            <Link to="/courses">Courses</Link>
+
+            {/* 🔥 NEW COMMUNITY LINK */}
+            <Link to="/community">Community</Link>
 
             <Link to="/cart">
               Cart ({cart.reduce((a, b) => a + b.quantity, 0)})
@@ -133,10 +139,9 @@ function App() {
             )}
 
           </div>
-
         </nav>
 
-        {/* MAIN */}
+        {/* 🔥 MAIN ROUTES */}
         <main className="flex-1">
           <Routes>
 
@@ -165,6 +170,11 @@ function App() {
               }
             />
 
+            <Route path="/courses" element={<Courses />} />
+
+            {/* 🔥 NEW ROUTE */}
+            <Route path="/community" element={<Community />} />
+
             <Route path="/profile" element={<Profile />} />
 
             <Route path="/auth" element={<Auth />} />
@@ -172,7 +182,7 @@ function App() {
           </Routes>
         </main>
 
-        {/* FOOTER */}
+        {/* 🔥 FOOTER */}
         <footer className="bg-black text-white text-center p-4">
           © 2026 NextMove Chess Store
         </footer>

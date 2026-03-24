@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import products, users, auth, orders
+from app.api import products, users, auth, orders, courses, community
 
 app = FastAPI(title="NextMove API")
 
@@ -17,6 +17,8 @@ app.include_router(products.router)
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(orders.router)
+app.include_router(courses.router)      # 🔥 NEW
+app.include_router(community.router)    # 🔥 NEW
 
 @app.get("/")
 def root():
