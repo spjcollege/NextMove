@@ -1,43 +1,34 @@
 import { Link } from "react-router-dom";
+import { productMeta } from "../productMeta";
 
-function ProductCard({product}){
+function ProductCard({ product }) {
+  const meta = productMeta[product.id];
 
-return(
+  return (
+    <Link to={`/product/${product.id}`}>
 
-<Link
-to={`/product/${product.id}`}
-className="bg-white rounded shadow hover:shadow-lg transition overflow-hidden"
->
+      <div className="bg-white rounded shadow hover:scale-105 transition p-4">
 
-<div className="relative">
+        <img
+          src={meta.image}
+          className="w-full h-40 object-cover"
+        />
 
-<img
-src={product.image}
-className="w-full h-48 object-cover"
-/>
+        {/* UNIQUE FEATURE */}
+        <span className="text-xs bg-black text-white px-2 py-1 mt-2 inline-block">
+          Premium
+        </span>
 
-<span className="absolute top-2 left-2 bg-black text-white text-xs px-2 py-1 rounded">
-{product.category}
-</span>
+        <h3 className="mt-2">{product.name}</h3>
 
-</div>
+        <p className="text-yellow-600">
+          ₹{product.price}
+        </p>
 
-<div className="p-4">
+      </div>
 
-<h3 className="font-semibold">
-{product.name}
-</h3>
-
-<p className="text-yellow-600 font-bold">
-${product.price.toFixed(2)}
-</p>
-
-</div>
-
-</Link>
-
-)
-
+    </Link>
+  );
 }
 
-export default ProductCard
+export default ProductCard;

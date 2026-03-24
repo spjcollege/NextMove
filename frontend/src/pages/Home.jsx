@@ -1,32 +1,28 @@
-import { useEffect, useState } from "react";
-import ProductCard from "../components/ProductCard";
+import { useEffect,useState } from "react"
+import ProductCard from "../components/ProductCard"
 
 function Home(){
 
-const [products,setProducts] = useState([]);
+const [products,setProducts] = useState([])
 
 useEffect(()=>{
 
 fetch("http://127.0.0.1:8000/products")
 .then(res=>res.json())
-.then(data=>{
+.then(data=>setProducts(data))
 
-// backend returns array directly
-setProducts(data);
-
-})
-.catch(err=>console.error(err));
-
-},[]);
+},[])
 
 return(
 
 <div>
 
+{/* HERO */}
+
 <section
 className="h-[60vh] flex flex-col justify-center items-center text-white text-center"
 style={{
-backgroundImage:"url('https://images.unsplash.com/photo-1604948501466-4e9c339b9c24')",
+backgroundImage:"url('/images/prod1.jpeg')",
 backgroundSize:"cover"
 }}
 >
@@ -36,7 +32,7 @@ Master Your Game
 </h2>
 
 <p className="mb-4">
-Discover our curated collection of tournament-grade boards
+Discover premium chess equipment
 </p>
 
 <a
@@ -47,6 +43,8 @@ Shop Collection
 </a>
 
 </section>
+
+{/* PRODUCTS */}
 
 <section
 id="shop"
@@ -60,10 +58,12 @@ The NextMove Collection
 <div className="grid md:grid-cols-3 gap-6">
 
 {products.map(product=>(
+
 <ProductCard
 key={product.id}
 product={product}
 />
+
 ))}
 
 </div>

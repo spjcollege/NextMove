@@ -1,68 +1,121 @@
 import { useParams } from "react-router-dom";
-import { useEffect,useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { productMeta } from "../productMeta";
 
-function ProductDetail({addToCart}){
+function ProductDetail({ addToCart }) {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
 
-const {id}=useParams();
-const [product,setProduct]=useState(null);
+  // 🔥 Track count for alert
+  const [addedCount, setAddedCount] = useState(0);
 
-useEffect(()=>{
+  useEffect(() => {
+    fetch(`http://127.0.0.1:8000/products/${id}`)
+      .then((res) => res.json())
+      .then((data) => setProduct(data))
+      .catch((err) => console.error(err));
+  }, [id]);
 
-axios
-.get("http://127.0.0.1:8000/products")
-.then(res=>{
+  if (!product) {
+    return <p className="p-10">Loading...</p>;
+  }
 
-const item=res.data.find(p=>p.id==id);
-setProduct(item);
+  const meta = productMeta[product.id];
 
-});
+  // 🔥 ADD TO CART HANDLER
+  const handleAddToCart = () => {
+    addToCart(product);
 
-},[id]);
+    const newCount = addedCount + 1;
+    setAddedCount(newCount);
 
-if(!product) return <p>Loading...</p>;
+    // ✅ SIMPLE ALERT
+    alert(`Added ${product.id} x${newCount}`);
+  };
 
-return(
+  return (
+    <div className="max-w-6xl mx-auto p-10 grid md:grid-cols-2 gap-10">
+      
+      {/* LEFT: PRODUCT IMAGE */}
+      <div>
+        <img
+          src={meta?.image}
+          alt={product.name}
+          className="rounded-lg shadow w-full"
+        />
+      </div>
 
-<div className="max-w-xl">
+      {/* RIGHT: PRODUCT DETAILS */}
+      <div>
 
-<img
-src="https://source.unsplash.com/500x300/?chess"
-className="rounded mb-4"
-/>
+        <h1 className="text-3xl font-bold mb-3">
+          {product.name}
+        </h1>
 
-<h2 className="text-3xl mb-2">
-{product.name}
-</h2>
+        <p className="text-yellow-600 text-xl mb-4">
+          ₹{product.price}
+        </p>
 
-<p className="text-yellow-500 text-xl">
-₹{product.price}
-</p>
+        <span className="inline-block bg-black text-white text-xs px-2 py-1 mb-4">
+          Premium Quality
+        </span>
 
-<p className="text-gray-500">
-Stock available: {product.stock}
-</p>
+        <p className="text-gray-600 mb-6">
+          Premium chess equipment crafted for serious players and enthusiasts.
+        </p>
 
-<div className="text-yellow-400 mt-2">
-★★★★☆
-</div>
+        {/* STOCK */}
+        <p className="mb-3 text-sm">
+          <strong>Stock Available:</strong> {product.stock}
+        </p>
 
-<button
-disabled={product.stock===0}
-onClick={()=>addToCart(product)}
-className={`mt-4 px-4 py-2 rounded text-black
-${product.stock===0
-? "bg-gray-400"
-: "bg-yellow-500"}
-`}
->
-{product.stock===0 ? "Out of Stock" : "Add to Cart"}
-</button>
+        {product.stock <= 5 && product.stock > 0 && (
+          <p className="text-red-500 mb-4">
+            Hurry! Only few items left
+          </p>
+        )}
 
-</div>
+        {product.stock === 0 && (
+          <p className="text-red-600 mb-4 font-semibold">
+            Out of Stock
+          </p>
+        )}
 
-)
+        {/* BUTTON */}
+        <button
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+          className={`px-6 py-2 rounded transition ${
+            product.stock === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-yellow-600 text-white hover:bg-yellow-700"
+          }`}
+        >
+          {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+        </button>
 
+        {/* INFO */}
+        <div className="mt-6 border rounded">
+          <p className="p-3 border-b">
+            <strong>Category:</strong> {meta?.category}
+          </p>
+
+          <p className="p-3">
+            <strong>Product ID:</strong> {product.id}
+          </p>
+        </div>
+
+        {/* TRUST */}
+        <div className="mt-6 text-sm text-gray-500">
+          <p>✔ Secure Checkout</p>
+          <p>✔ 30 Day Returns</p>
+          <p>✔ Premium Quality Assured</p>
+        </div>
+
+      </div>
+
+    </div>
+  );
 }
 
-export default ProductDetail
+export default ProductDetail;
