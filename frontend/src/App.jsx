@@ -8,35 +8,34 @@ import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 
+// 🔥 ADD THESE (IMPORTANT)
+import Courses from "./pages/Courses";
+import Community from "./pages/Community";
+
 function App() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // 🔥 Load cart
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart"));
     if (savedCart) setCart(savedCart);
   }, []);
 
-  // 🔥 Save cart
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // 🔥 Load user
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) setUser(storedUser);
   }, []);
 
-  // 🔥 Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
   };
 
-  // 🔥 Add to cart
   const addToCart = (product) => {
     const existing = cart.find((item) => item.id === product.id);
 
@@ -53,12 +52,10 @@ function App() {
     }
   };
 
-  // 🔥 Remove item
   const removeFromCart = (id) => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
-  // 🔥 Update quantity
   const updateQuantity = (id, qty) => {
     if (qty <= 0) return;
 
@@ -70,12 +67,10 @@ function App() {
   };
 
   return (
-    <NotificationProvider>
-      <BrowserRouter>
-        <Toast />
-        <div className="min-h-screen flex flex-col bg-gray-100">
+    <BrowserRouter>
+      <div className="min-h-screen flex flex-col bg-gray-100">
 
-        {/* 🔥 NAVBAR */}
+        {/* NAVBAR */}
         <nav className="flex justify-between px-10 py-4 bg-white shadow items-center">
 
           <Link to="/">
@@ -87,10 +82,7 @@ function App() {
           <div className="flex gap-6 items-center">
 
             <Link to="/">Shop</Link>
-
             <Link to="/courses">Courses</Link>
-
-            {/* 🔥 NEW COMMUNITY LINK */}
             <Link to="/community">Community</Link>
 
             <Link to="/cart">
@@ -100,33 +92,27 @@ function App() {
             {user ? (
               <div className="relative">
 
-                {/* PROFILE ICON */}
                 <div
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center cursor-pointer"
                 >
-                  {user.username?.charAt(0).toUpperCase()}
+                  {user.name?.charAt(0).toUpperCase()}
                 </div>
 
-                {/* DROPDOWN */}
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow rounded p-2">
 
                     <p className="text-sm px-2 py-1">
-                      {user.username}
+                      {user.name}
                     </p>
 
-                    <Link
-                      to="/profile"
-                      className="block px-2 py-1 hover:bg-gray-100"
-                      onClick={() => setShowDropdown(false)}
-                    >
+                    <Link to="/profile" className="block px-2 py-1">
                       Profile
                     </Link>
 
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-2 py-1 hover:bg-gray-100 text-red-500"
+                      className="w-full text-left px-2 py-1 text-red-500"
                     >
                       Logout
                     </button>
@@ -139,9 +125,10 @@ function App() {
             )}
 
           </div>
+
         </nav>
 
-        {/* 🔥 MAIN ROUTES */}
+        {/* ROUTES */}
         <main className="flex-1">
           <Routes>
 
@@ -171,25 +158,20 @@ function App() {
             />
 
             <Route path="/courses" element={<Courses />} />
-
-            {/* 🔥 NEW ROUTE */}
             <Route path="/community" element={<Community />} />
-
             <Route path="/profile" element={<Profile />} />
-
             <Route path="/auth" element={<Auth />} />
 
           </Routes>
         </main>
 
-        {/* 🔥 FOOTER */}
+        {/* FOOTER */}
         <footer className="bg-black text-white text-center p-4">
           © 2026 NextMove Chess Store
         </footer>
 
       </div>
-      </BrowserRouter>
-    </NotificationProvider>
+    </BrowserRouter>
   );
 }
 

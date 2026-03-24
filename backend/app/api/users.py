@@ -1,17 +1,22 @@
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
+from datetime import datetime
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
+# 🔥 USERS STORAGE
 USERS_DB = []
 
-class UserCreate(BaseModel):
+# 🔥 FIX: ADD THIS (required for products.py)
+USER_ACTIVITY = []
 
+
+class UserCreate(BaseModel):
     name: str
     email: str
     password: str
-
+    address: str | None = None
+    phone: str | None = None
 
 
 @router.post("/register")
@@ -21,13 +26,14 @@ def register_user(user: UserCreate):
 
     return {
         "message": "User registered successfully",
-        "user": {"id": new_user.id, "username": new_user.username}
+        "user": user
     }
 
 
-# 🔥 CRM TRACKING
+# 🔥 TRACK USER ACTIVITY (for CRM)
 @router.post("/track")
 def track_user(data: dict):
+
     activity = {
         "user_id": data.get("userId"),
         "action": data.get("action"),
@@ -38,4 +44,4 @@ def track_user(data: dict):
 
     USER_ACTIVITY.append(activity)
 
-    return {"message": "Tracked"}
+    return {"message": "Tracked successfully"}
