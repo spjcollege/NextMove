@@ -1,97 +1,83 @@
 import { useEffect, useState } from "react";
+import { apiFetch } from "../api";
+import { useAuth } from "../App";
 
 function Community() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  const fetchMessages = () => {
-    fetch(`http://127.0.0.1:8000/community/${user.email}`)
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(data => setMessages(data))
-      .catch(() => {
-        alert("Only subscribers can access community");
-      });
-  };
+  const { user, showToast } = useAuth();
 
   useEffect(() => {
-    if (user) fetchMessages();
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchMessages = () => {
+    apiFetch("/community/messages").then(setMessages).catch(() => { });
+  };
 
   const postMessage = async () => {
     if (!text.trim()) return;
-
-    const res = await fetch("http://127.0.0.1:8000/community/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        user: user.email,
-        text
-      })
-    });
-
-    if (!res.ok) {
-      alert("Only subscribers can post");
-      return;
+    if (!user) { showToast("Please login to post", "error"); return; }
+    try {
+      await apiFetch("/community/messages", {
+        method: "POST",
+        body: JSON.stringify({ text }),
+      });
+      setText("");
+      fetchMessages();
+    } catch (e) {
+      showToast(e.message, "error");
     }
-
-    setText("");
-    fetchMessages();
   };
 
   return (
-    <div className="p-10 max-w-3xl mx-auto">
-
-      <h2 className="text-2xl font-bold mb-6">
-        Subscriber Community 💬
-      </h2>
-
-      {/* INPUT */}
-      <div className="flex gap-2 mb-6">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="border p-2 flex-1 rounded"
-          placeholder="Share your thoughts..."
-        />
-
-        <button
-          onClick={postMessage}
-          className="bg-blue-500 text-white px-4 rounded"
-        >
-          Post
-        </button>
+    <div className="page animate-fade-in" style={{ maxWidth: 700, margin: "0 auto" }}>
+      <div className="section-header">
+        <h1>👥 Community Chat</h1>
       </div>
+      <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: 24 }}>
+        Connect with fellow chess enthusiasts. Share ideas, discuss strategies, and make friends.
+      </p>
 
-      {/* MESSAGES */}
-      <div className="space-y-3">
+      {/* Post */}
+      {user && (
+        <div className="card" style={{ display: "flex", gap: 12, marginBottom: 24, padding: 16 }}>
+          <div className="user-avatar sm">{user.username?.charAt(0).toUpperCase()}</div>
+          <input
+            className="input"
+            placeholder="Share your thoughts..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && postMessage()}
+            style={{ flex: 1 }}
+          />
+          <button className="btn btn-primary" onClick={postMessage}>Post</button>
+        </div>
+      )}
 
+      {/* Messages */}
+      <div style={{ display: "grid", gap: 8 }}>
         {messages.length === 0 && (
-          <p className="text-gray-500">
-            No messages yet
-          </p>
+          <div style={{ textAlign: "center", padding: 48, color: "var(--text-tertiary)" }}>
+            <p style={{ fontSize: "2rem", marginBottom: 8 }}>💬</p>
+            <p>No messages yet. Start the conversation!</p>
+          </div>
         )}
-
-        {messages.map((msg, i) => (
-          <div key={i} className="border p-3 rounded bg-white shadow">
-
-            <p className="text-sm text-gray-500">
-              {msg.user} • {msg.time}
-            </p>
-
-            <p className="mt-1">{msg.text}</p>
-
+        {messages.map((msg) => (
+          <div key={msg.id} className="card" style={{ padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <div className="user-avatar sm">{msg.username?.charAt(0).toUpperCase()}</div>
+              <span style={{ fontWeight: 600, fontSize: "0.85rem" }}>{msg.username}</span>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-tertiary)" }}>
+                {new Date(msg.created_at).toLocaleString()}
+              </span>
+            </div>
+            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", paddingLeft: 38 }}>{msg.text}</p>
           </div>
         ))}
-
       </div>
-
     </div>
   );
 }

@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import products, users, auth, orders, courses, community
+from app.api import (
+    products, users, auth, orders, courses,
+    community, reviews, wishlist, forums, puzzles,
+    leaderboard, news
+)
 
-app = FastAPI(title="NextMove API")
+app = FastAPI(title="NextMove API", version="2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,13 +17,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(products.router)
-app.include_router(users.router)
+# ─── Register Routers ───
 app.include_router(auth.router)
+app.include_router(products.router)
 app.include_router(orders.router)
-app.include_router(courses.router)      # 🔥 NEW
-app.include_router(community.router)    # 🔥 NEW
+app.include_router(users.router)
+app.include_router(courses.router)
+app.include_router(community.router)
+app.include_router(reviews.router)
+app.include_router(wishlist.router)
+app.include_router(forums.router)
+app.include_router(puzzles.router)
+app.include_router(leaderboard.router)
+app.include_router(news.router)
+
 
 @app.get("/")
 def root():
-    return {"message": "NextMove backend is running"}
+    return {"message": "NextMove Chess Platform API v2.0"}

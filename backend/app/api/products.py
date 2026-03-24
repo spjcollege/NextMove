@@ -1,51 +1,105 @@
-from fastapi import APIRouter, HTTPException
-from collections import Counter
-from app.api.users import USER_ACTIVITY
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from app.db import get_db, Product, UserActivity
+from app.auth_utils import get_optional_user, get_current_user
+import json
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
-PRODUCTS = [
-    {"id":1,"name":"Wooden Tournament Chess Board","price":1500,"stock":10},
-    {"id":2,"name":"Weighted Staunton Chess Pieces","price":900,"stock":15},
-    {"id":3,"name":"Digital Chess Clock","price":1700,"stock":8},
-    {"id":4,"name":"Magnetic Travel Chess Set","price":600,"stock":20},
-    {"id":5,"name":"Luxury Marble Chess Board","price":3500,"stock":5},
-    {"id":6,"name":"Professional Chess Pieces Set","price":2000,"stock":12},
-    {"id":7,"name":"Chess Opening Book","price":500,"stock":25},
-    {"id":8,"name":"Foldable Tournament Board","price":1100,"stock":18},
-    {"id":9,"name":"Chess Notation Scorebook","price":350,"stock":30}
-]
+
+def _product_dict(p: Product):
+    return {
+        "id": p.id,
+        "name": p.name,
+        "description": p.description,
+        "price": p.price,
+        "original_price": p.original_price,
+        "stock": p.stock,
+        "category": p.category,
+        "image_url": p.image_url,
+        "images": json.loads(p.images) if p.images else [],
+        "rating_avg": round(p.rating_avg, 1),
+        "rating_count": p.rating_count,
+        "is_featured": p.is_featured,
+    }
 
 
 @router.get("/")
-def get_products():
-    return PRODUCTS
+def get_products(
+    category: str = None,
+    search: str = None,
+    sort: str = None,  # price_asc, price_desc, rating, newest
+    min_price: float = None,
+    max_price: float = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(Product)
+
+    if category:
+        query = query.filter(Product.category == category)
+    if search:
+        query = query.filter(
+            or_(
+                Product.name.ilike(f"%{search}%"),
+                Product.description.ilike(f"%{search}%"),
+            )
+        )
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+
+    if sort == "price_asc":
+        query = query.order_by(Product.price.asc())
+    elif sort == "price_desc":
+        query = query.order_by(Product.price.desc())
+    elif sort == "rating":
+        query = query.order_by(Product.rating_avg.desc())
+    elif sort == "newest":
+        query = query.order_by(Product.created_at.desc())
+
+    products = query.all()
+    return [_product_dict(p) for p in products]
+
+
+@router.get("/featured")
+def get_featured(db: Session = Depends(get_db)):
+    products = db.query(Product).filter(Product.is_featured == True).limit(6).all()
+    return [_product_dict(p) for p in products]
+
+
+@router.get("/categories")
+def get_categories(db: Session = Depends(get_db)):
+    cats = db.query(Product.category).distinct().all()
+    return [c[0] for c in cats if c[0]]
 
 
 @router.get("/{product_id}")
-def get_product(product_id:int):
-    for product in PRODUCTS:
-        if product["id"] == product_id:
-            return product
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Product not found")
+    return _product_dict(product)
 
-    raise HTTPException(status_code=404, detail="Product not found")
 
-
-# 🔥 CRM BASED RECOMMENDATIONS
 @router.get("/recommend/{user_id}")
-def recommend_products(user_id: str):
+def recommend_products(user_id: int, db: Session = Depends(get_db)):
+    """CRM-based recommendations."""
+    activities = db.query(UserActivity).filter(
+        UserActivity.user_id == user_id,
+        UserActivity.action == "purchase"
+    ).all()
 
-    user_data = [a for a in USER_ACTIVITY if a["user_id"] == user_id]
+    if not activities:
+        # Return featured or top-rated products
+        products = db.query(Product).order_by(Product.rating_avg.desc()).limit(4).all()
+        return [_product_dict(p) for p in products]
 
-    if not user_data:
-        return PRODUCTS[:3]
-
-    product_ids = [a["product_id"] for a in user_data]
-    most_common = Counter(product_ids).most_common(1)
-
-    if not most_common:
-        return PRODUCTS[:3]
-
-    preferred_id = most_common[0][0]
-
-    return [p for p in PRODUCTS if p["id"] != preferred_id][:3]
+    # Find products user hasn't purchased
+    purchased_ids = {a.product_id for a in activities if a.product_id}
+    products = db.query(Product).filter(
+        Product.id.notin_(purchased_ids)
+    ).order_by(Product.rating_avg.desc()).limit(4).all()
+    return [_product_dict(p) for p in products]
