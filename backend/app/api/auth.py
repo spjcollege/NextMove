@@ -1,27 +1,34 @@
-from fastapi import APIRouter, HTTPException
+
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from app.api.users import USERS_DB
+from sqlalchemy.orm import Session
+from app.db import SessionLocal, User
+
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-class Login(BaseModel):
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    email: str
+
+class Login(BaseModel):
+    username: str
     password: str
 
 
+
 @router.post("/login")
-def login_user(data: Login):
-
-    for user in USERS_DB:
-
-        if user["email"] == data.email and user["password"] == data.password:
-
-            return {
-                "message": "Login successful",
-                "user": user
-            }
-
+def login_user(data: Login, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == data.username).first()
+    if user and user.password == data.password:
+        return {
+            "message": "Login successful",
+            "user": {"id": user.id, "username": user.username}
+        }
     raise HTTPException(
         status_code=401,
         detail="Invalid credentials"

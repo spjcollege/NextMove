@@ -1,21 +1,23 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../hooks/useNotification";
 
 function Checkout({ cart, setCart }) {
   const navigate = useNavigate();
+  const notify = useNotification();
 
   const user = JSON.parse(localStorage.getItem("user"));
 
   const placeOrder = async () => {
     // LOGIN CHECK
     if (!user) {
-      alert("Please login first");
+      notify.warning("Please login first");
       navigate("/auth");
       return;
     }
 
     if (cart.length === 0) {
-      alert("Cart is empty");
+      notify.warning("Cart is empty");
       return;
     }
 
@@ -23,17 +25,18 @@ function Checkout({ cart, setCart }) {
       const res = await axios.post(
         "http://127.0.0.1:8000/orders/place",
         {
-          user: user.email,
+          userId: user.id,
+          username: user.username,
           items: cart
         }
       );
 
       if (res.data.error) {
-        alert(res.data.error);
+        notify.error(res.data.error);
         return;
       }
 
-      alert("Order placed successfully!");
+      notify.success("Order placed successfully!");
 
       // Clear cart
       setCart([]);
@@ -42,7 +45,7 @@ function Checkout({ cart, setCart }) {
       navigate("/profile");
 
     } catch (err) {
-      alert("Something went wrong");
+      notify.error("Error placing order: " + (err.response?.data?.detail || err.message));
     }
   };
 

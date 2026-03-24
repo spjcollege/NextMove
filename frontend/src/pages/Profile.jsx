@@ -16,7 +16,7 @@ function Profile() {
     // 🔥 FETCH ORDERS
     axios.get("http://127.0.0.1:8000/orders").then((res) => {
       const userOrders = res.data.filter(
-        (o) => o.user === user?.email
+        (o) => o.userId === user?.id || o.username === user?.username
       );
       setOrders(userOrders);
     });
@@ -52,7 +52,7 @@ function Profile() {
 
       {/* 🔥 USER GREETING */}
       <h2 className="text-2xl font-bold mb-2">
-        Hello, {user?.name}
+        Hello, {user?.username}
       </h2>
 
       {/* 🔥 CRM INSIGHTS */}

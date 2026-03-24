@@ -1,37 +1,40 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../hooks/useNotification";
 
-function Checkout({ cart, setCart }) {
-  const navigate = useNavigate();
+function Checkout({cart}){
+
+const navigate=useNavigate();
 
   const placeOrder = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    if (!user) {
-      alert("Login required");
-      return;
-    }
+if(!user){
+alert("Login required");
+return;
+}
 
-    await axios.post(
-      "http://127.0.0.1:8000/orders/place",
-      {
-        user: user.email,
-        items: cart
-      }
-    );
+await axios.post(
+"http://127.0.0.1:8000/orders/place",
+{
+user:user.email,
+items:cart
+}
+);
 
-    alert("Order placed successfully");
+alert("Order placed successfully");
 
-    // 🔥 clear cart
-    setCart([]);
-    localStorage.removeItem("cart");
+navigate("/profile");
 
-    navigate("/profile");
-  };
+};
 
-  return (
-    <div className="p-10">
-      <h2 className="text-2xl mb-4">Checkout</h2>
+return(
+
+<div>
+
+<h2 className="text-2xl mb-4">
+Checkout
+</h2>
 
       <p className="mb-4">Items: {cart.length}</p>
 

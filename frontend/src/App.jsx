@@ -7,8 +7,6 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
-import Courses from "./pages/Courses";
-import Community from "./pages/Community"; // 🔥 NEW
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -72,8 +70,10 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-gray-100">
+    <NotificationProvider>
+      <BrowserRouter>
+        <Toast />
+        <div className="min-h-screen flex flex-col bg-gray-100">
 
         {/* 🔥 NAVBAR */}
         <nav className="flex justify-between px-10 py-4 bg-white shadow items-center">
@@ -105,7 +105,7 @@ function App() {
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center cursor-pointer"
                 >
-                  {user.name?.charAt(0).toUpperCase()}
+                  {user.username?.charAt(0).toUpperCase()}
                 </div>
 
                 {/* DROPDOWN */}
@@ -113,7 +113,7 @@ function App() {
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow rounded p-2">
 
                     <p className="text-sm px-2 py-1">
-                      {user.name}
+                      {user.username}
                     </p>
 
                     <Link
@@ -188,7 +188,8 @@ function App() {
         </footer>
 
       </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </NotificationProvider>
   );
 }
 

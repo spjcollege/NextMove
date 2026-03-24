@@ -1,10 +1,12 @@
 import {useState} from "react";
 import axios from "axios";
+import { useNotification } from "../hooks/useNotification";
 
 function Login(){
 
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
+const notify = useNotification();
 
 const login=async()=>{
 
@@ -18,7 +20,7 @@ localStorage.setItem(
 JSON.stringify(res.data.user)
 );
 
-alert("Login successful");
+notify.success("Login successful");
 
 window.location="/";
 
