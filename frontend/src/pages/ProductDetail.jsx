@@ -31,7 +31,7 @@ function ProductDetail() {
 
   const handleAddToWishlist = async () => {
     try {
-      await apiFetch(`/wishlist/${id}`, { method: "POST" });
+      await apiFetch(`/wishlist/${id}`, { method: "POST", body: "{}" });
       showToast("Added to wishlist ♡");
     } catch (e) {
       showToast(e.message, "error");

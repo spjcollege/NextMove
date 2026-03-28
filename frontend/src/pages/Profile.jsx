@@ -7,14 +7,20 @@ function Profile() {
   const [orders, setOrders] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(null);
-  const { user, showToast } = useAuth();
+  const { user, login, showToast } = useAuth();
   const navigate = useNavigate();
+
+  const [newAddress, setNewAddress] = useState("");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     apiFetch("/orders/").then(setOrders).catch(() => { });
     apiFetch("/courses/user/enrolled").then(setEnrollments).catch(() => { });
-  }, [user]);
+    
+    apiFetch("/auth/me").then(d => {
+      login(localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : "", d);
+    }).catch(() => {});
+  }, []);
 
   if (!user) return null;
 
@@ -25,6 +31,41 @@ function Profile() {
     confirmed: "badge-gold",
     shipped: "badge-emerald",
     delivered: "badge-emerald",
+  };
+
+  const parsedAddresses = (() => {
+    try { return user.address ? JSON.parse(user.address) : []; }
+    catch(e) { return (typeof user.address === "string" && user.address.trim()) ? [{ id: 1, text: user.address }] : []; }
+  })();
+
+  const handleAddAddress = async () => {
+    if (!newAddress.trim()) return;
+    const newAddrs = [...parsedAddresses, { id: Date.now(), text: newAddress.trim() }];
+    try {
+      const updatedUser = await apiFetch("/auth/profile", {
+        method: "PUT",
+        body: JSON.stringify({ address: JSON.stringify(newAddrs) })
+      });
+      login(localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : "", updatedUser);
+      setNewAddress("");
+      showToast("Address added");
+    } catch(e) {
+      showToast(e.message, "error");
+    }
+  };
+
+  const removeAddress = async (id) => {
+    const newAddrs = parsedAddresses.filter(a => a.id !== id);
+    try {
+      const updatedUser = await apiFetch("/auth/profile", {
+        method: "PUT",
+        body: JSON.stringify({ address: JSON.stringify(newAddrs) })
+      });
+      login(localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : "", updatedUser);
+      showToast("Address removed");
+    } catch(e) {
+      showToast(e.message, "error");
+    }
   };
 
   return (
@@ -72,6 +113,35 @@ function Profile() {
             <div className="stat-value">{enrollments.length}</div>
             <div className="stat-label">Enrolled Courses</div>
           </div>
+        </div>
+      </div>
+
+      {/* Addresses */}
+      <h2 style={{ marginBottom: 16 }}>📍 My Addresses</h2>
+      <div className="card" style={{ marginBottom: 32 }}>
+        {parsedAddresses.length === 0 ? (
+          <p style={{ color: "var(--text-tertiary)", marginBottom: 16 }}>No addresses saved yet.</p>
+        ) : (
+          <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+            {parsedAddresses.map(addr => (
+              <div key={addr.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)" }}>
+                <span style={{ fontSize: "0.9rem" }}>{addr.text}</span>
+                <button className="btn btn-sm btn-danger" onClick={() => removeAddress(addr.id)}>Remove</button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 12 }}>
+          <input 
+            type="text" 
+            className="input" 
+            placeholder="Add a new address..." 
+            value={newAddress} 
+            onChange={e => setNewAddress(e.target.value)} 
+            style={{ flex: 1 }} 
+            onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
+          />
+          <button className="btn btn-primary" onClick={handleAddAddress}>Add</button>
         </div>
       </div>
 

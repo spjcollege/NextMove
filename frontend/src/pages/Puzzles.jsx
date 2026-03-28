@@ -77,17 +77,17 @@ function Puzzles() {
                         <span className="badge badge-blue">Rating: {daily.difficulty}</span>
                     </div>
 
-                    {/* Chess Position (FEN displayed as text — interactive board would require chess.js) */}
+                    {/* Chess Position (Embedded Lichess Board) */}
                     <div style={{
-                        background: "var(--bg-tertiary)", borderRadius: "var(--radius-lg)",
-                        height: 280, display: "flex", alignItems: "center", justifyContent: "center",
+                        borderRadius: "var(--radius-lg)",
+                        height: 400, overflow: "hidden",
                         marginBottom: 24, border: "1px solid var(--border-subtle)",
-                        flexDirection: "column", gap: 12,
                     }}>
-                        <span style={{ fontSize: "3rem" }}>♔ ♕ ♗ ♘</span>
-                        <p style={{ fontSize: "0.8rem", color: "var(--text-tertiary)", fontFamily: "JetBrains Mono, monospace", maxWidth: "80%", textAlign: "center", wordBreak: "break-all" }}>
-                            {daily.fen}
-                        </p>
+                        <iframe 
+                            src={`https://lichess.org/analysis/standard/${encodeURIComponent(daily.fen)}`} 
+                            style={{ width: "100%", height: "100%", border: "none" }}
+                            title="Chess Board"
+                        />
                     </div>
 
                     <h3 style={{ marginBottom: 12 }}>Your Move</h3>

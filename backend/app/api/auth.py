@@ -33,6 +33,7 @@ def _user_dict(user: User):
         "puzzle_rating": user.puzzle_rating,
         "subscription_tier": user.subscription_tier,
         "is_admin": user.is_admin,
+        "address": user.address,
         "created_at": str(user.created_at),
     }
 
@@ -55,7 +56,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return {"token": token, "user": _user_dict(user)}
 
 
@@ -65,7 +66,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return {"token": token, "user": _user_dict(user)}
 
 

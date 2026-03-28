@@ -28,33 +28,29 @@ NextMove has evolved into a comprehensive chess ecosystem (inspired by chess.com
 
 ---
 
-## ✅ Features Implemented
+## ✅ Feature Status & Quality
 
-### 🛒 E-Commerce
-- Product catalog with categories, search, styling, and discounts
-- Add to cart, quantity management, and cart persistence
-- Checkout system (Address, Payment Methods - COD/UPI/Card)
-- Order history tracking and status
-- Product Reviews and Wishlists
+| Feature | State | Current Quality | Industry Target |
+|---------|-------|----------------|-----------------|
+| Products | SQLite, 30+ seeded items, category/search | **Functional** | Scalable |
+| Cart & Checkout | Address selection, payment gateway wired | **Robust** | Robust |
+| Auth (Login/Register) | JWT + bcrypt, profile management | **Secure** | Scalable |
+| Orders | SQLite persistence, status tracking | **Robust** | Robust |
+| CRM Tracking | UserActivity DB model, event logging | **Functional** | Robust |
+| SCM / Inventory | Stock validated on order placement | **Functional** | Robust |
+| Courses | SQLite, enroll flow, payment gated | **Functional** | Robust |
+| Community (chat) | SQLite messages, polling-based | **Basic** | Scalable |
+| UI Design | Custom dark-mode glassmorphism CSS | **Robust** | Robust |
+| JWT / Security | Python-Jose JWT, bcrypt, 401 interception | **Secure** | Scalable |
+| Database | 16-model SQLAlchemy + SQLite | **Functional** | Scalable |
+| Payment Gateway | Razorpay (Cards/Netbanking/Wallet) | **Functional** | Robust |
+| Wishlist | SQLite-backed, add/remove | **Functional** | Robust |
+| Puzzles | Lichess board embed, solution validation | **Functional** | Robust |
+| Forums | Threads, comments, likes | **Functional** | Robust |
+| Leaderboard | Ratings-based ranking | **Functional** | Robust |
+| Real-time Features | Polling only (no WebSockets) | **Basic** | Scalable |
 
-### 📚 Learning & Gamification
-- **Courses:** Browse, enroll, and track progress on chess masterclasses.
-- **Puzzles:** Daily chess puzzles parsing FEN notation, answer validation, and puzzle rating updates.
-- **Leaderboards:** Track top players by puzzle rating, player rating, and community activity.
-
-### 💬 Community & Forums
-- **Forums:** Discuss strategies, pin posts, like algorithms, and threaded comments.
-- **Chat:** Community messaging platform for active discussion.
-- **News:** Daily chess articles and updates.
-
-### 🔒 Security & Users
-- Secure JWT-based authentication.
-- Password hashing via `bcrypt`.
-- Rich user profiles with subscription tiers, order history, and stats.
-
-### 📊 CRM & SCM Features
-- User activity tracking (`UserActivity` DB model).
-- Secure inventory tracking & valid stock management during checkouts.
+> **Security note:** Plan to migrate to an open-source auth provider (e.g. Supabase Auth / Keycloak) to reach Scalable tier.
 
 ---
 
@@ -104,25 +100,25 @@ NextMove has evolved into a comprehensive chess ecosystem (inspired by chess.com
 
 ✅ **Phase 2 & Phase 3-6 Completely Finished:**
 - Entire mock in-memory data has been completely replaced with a fully seeded relational SQLite database.
-- Backend APIs are highly secured with Python-Jose JWTs.
+- Backend APIs are highly secured with Python-Jose JWTs, with robust token decoding.
 - The UI has transitioned from basic to a premium dark-themed, highly interactive experience perfectly suited for a modern chess app.
 
 ---
 
 ## ⚠️ Limitations
 
-- No real payment gateway integration (Stripe/Razorpay needed for real transactions).
+- No real payment gateway integration (Stripe/Razorpay needed for real transactions, though simulated flows exist for Courses and Checkout).
 - Chat currently uses polling instead of Real-Time WebSockets.
-- Puzzles currently leverage text-based FEN instead of an integrated interactive visual drag-and-drop chessboard (e.g., `chess.js` + `react-chessboard`).
+- Puzzles currently leverage an embedded Lichess Analysis Board. Fully native integration (`chess.js` + `react-chessboard`) could offer deeper gamification APIs within the app itself.
 
 ---
 
 ## 🚀 Next Steps
 
 ### Medium Priority
-- Add actual `react-chessboard` library for visual interactive daily puzzles.
+- Full local integration of `react-chessboard` library for deep interactive gamification control without iframes.
 - Integrate WebSockets for real-time community chat.
-- Add payment gateway.
+- Add fully functioning external payment gateway.
 
 ### Advanced
 - Transition from SQLite to PostgreSQL for production.
@@ -132,9 +128,12 @@ NextMove has evolved into a comprehensive chess ecosystem (inspired by chess.com
 
 ## 🧑‍💻 Contribution Log
 
-### Latest Update (March 2026)
+### Latest Updates (March 2026)
+- **Authentication & Security:** Fixed a critical JWT decoding bug resulting from strict integer-to-string subject validation requirements. Implemented global 401 interception in the frontend to automatically manage expired sessions smoothly.
+- **E-Commerce Enhancements:** Repaired Wishlist POST requests. Improved the Product Checkout flow with dynamic Amazon-style Address selection derived from user profiles.
+- **Profile Management:** Created a dedicated Address Management portal in the Profile dashboard allowing users to persistently view, add, and remove multiple delivery locations.
+- **Course Enrollment Flow:** Upgraded Premium Course enrollments with a simulated standalone Checkout / Payment modal flow.
+- **Puzzle Interactivity:** Replaced static FEN "gibberish" strings with fully interactive, embedded Lichess Analysis boards for real-time tactical visualization.
 - **Database Overhaul:** Migrated from single JSON-like user store to a 16-Model SQLAlchemy relational database.
-- **Authentication:** Added comprehensive `bcrypt` cryptography and `JWT` token validation.
 - **UI Rewrite:** Scrapped Tailwind in favor of a bespoke premium Dark-Mode Glassmorphism Vanilla CSS design map (`index.css`).
-- **Pages Added:** Boosted frontend from 6 pages to 16 full-feature pages (Wishlist, Puzzles, Leaderboards, Reviews, News, Forums).
 - **Seed Script:** Created an automated `seed.py` for effortless development environment spinning.
