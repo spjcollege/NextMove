@@ -34,7 +34,7 @@ export const CartContext = createContext(null);
 
 // ─── Navbar Component ───
 function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, theme, toggleTheme } = useAuth();
   const { cart } = useContext(CartContext);
   const [showMenu, setShowMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,6 +100,14 @@ function Navbar() {
 
         {/* Actions */}
         <div className="nav-actions">
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
+
           <Link to="/wishlist" className="nav-action-btn" title="Wishlist">
             ♡
           </Link>
@@ -210,6 +218,14 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [toast, setToast] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -261,7 +277,7 @@ function App() {
   const clearCart = () => setCart([]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, showToast }}>
+    <AuthContext.Provider value={{ user, login, logout, showToast, theme, toggleTheme }}>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>
         <BrowserRouter>
           <div className="app-layout">

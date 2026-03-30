@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiFetch } from "../api";
+import { useAuth } from "../App";
 
 const CATEGORIES = [
     { key: "", label: "All Products", icon: "♟" },
@@ -56,7 +57,7 @@ function Home() {
         <div className="animate-fade-in">
             {/* Hero */}
             <section style={{
-                background: "linear-gradient(135deg, #0A0A0F 0%, #1a1520 40%, #0d1117 100%)",
+                background: "linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 40%, var(--bg-primary) 100%)",
                 padding: "80px 24px",
                 textAlign: "center",
                 position: "relative",
@@ -182,6 +183,7 @@ function Home() {
 }
 
 function ProductCard({ product: p }) {
+    const { theme } = useAuth();
     const discount = p.original_price > p.price
         ? Math.round((1 - p.price / p.original_price) * 100)
         : 0;
@@ -194,7 +196,7 @@ function ProductCard({ product: p }) {
             {/* Image placeholder */}
             <div style={{
                 height: 180,
-                background: `linear-gradient(135deg, ${stringToColor(p.name)} 0%, var(--bg-tertiary) 100%)`,
+                background: `linear-gradient(135deg, ${stringToColor(p.name, theme)} 0%, var(--bg-tertiary) 100%)`,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: "2.5rem", position: "relative",
             }}>
@@ -234,11 +236,12 @@ function ProductCard({ product: p }) {
     );
 }
 
-function stringToColor(str) {
+function stringToColor(str, theme) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
     const h = hash % 360;
-    return `hsla(${h}, 30%, 15%, 1)`;
+    const l = theme === "light" ? 82 : 15;
+    return `hsla(${h}, 30%, ${l}%, 1)`;
 }
 
 function getCategoryEmoji(cat) {

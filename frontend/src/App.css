@@ -20,7 +20,7 @@
   left: 0;
   right: 0;
   height: var(--nav-height);
-  background: rgba(10, 10, 15, 0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
@@ -392,7 +392,7 @@
     top: var(--nav-height);
     left: 0;
     right: 0;
-    background: var(--bg-secondary);
+    background: var(--nav-bg, var(--bg-secondary));
     border-bottom: 1px solid var(--border-subtle);
     padding: 16px;
     flex-direction: column;

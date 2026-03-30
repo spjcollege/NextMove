@@ -59,6 +59,9 @@
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-smooth: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─── Navbar ─── */
+  --nav-bg: rgba(10, 10, 15, 0.92);
 }
 
 /* ─── Reset & Base ─── */
@@ -467,4 +470,90 @@ textarea.input {
   .grid-products { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
   .grid-courses { grid-template-columns: 1fr; }
   .section-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+
+/* ═══════════════════════════════════════════
+   LIGHT THEME OVERRIDES
+   ═══════════════════════════════════════════ */
+
+[data-theme="light"] {
+  /* ─── Backgrounds ─── */
+  --bg-primary: #F5F3EF;
+  --bg-secondary: #EDEAE4;
+  --bg-tertiary: #E4E0D8;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAF9F7;
+  --bg-elevated: #FFFFFF;
+  --bg-input: #FFFFFF;
+
+  /* ─── Borders ─── */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.15);
+  --border-gold: rgba(180, 140, 40, 0.3);
+
+  /* ─── Text ─── */
+  --text-primary: #1A1A2E;
+  --text-secondary: #555566;
+  --text-tertiary: #888899;
+
+  /* ─── Glassmorphism ─── */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-gold: 0 4px 20px rgba(180, 140, 40, 0.12);
+
+  /* ─── Navbar ─── */
+  --nav-bg: rgba(245, 243, 239, 0.92);
+
+  /* ─── Direct overrides ─── */
+  background-color: #F5F3EF;
+  color: #1A1A2E;
+}
+
+[data-theme="light"] body {
+  background: #F5F3EF;
+  color: #1A1A2E;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #EDEAE4;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ─── Theme Toggle Button ─── */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-gold);
+  color: var(--brand-gold);
+  transform: rotate(15deg);
+  box-shadow: var(--shadow-gold);
 }
