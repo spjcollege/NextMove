@@ -21,6 +21,7 @@ import Wishlist from "./pages/Wishlist";
 import Leaderboard from "./pages/Leaderboard";
 import News from "./pages/News";
 import SearchResults from "./pages/SearchResults";
+import AdminDashboard from "./pages/AdminDashboard";
 
 // ─── Auth Context ───
 export const AuthContext = createContext(null);
@@ -143,6 +144,11 @@ function Navbar() {
                   <Link to="/profile" className="dropdown-item" onClick={() => setShowMenu(false)}>
                     👤 Profile
                   </Link>
+                  {user.is_admin && (
+                    <Link to="/admin/dashboard" className="dropdown-item" onClick={() => setShowMenu(false)}>
+                      📊 Dashboard
+                    </Link>
+                  )}
                   <Link to="/wishlist" className="dropdown-item" onClick={() => setShowMenu(false)}>
                     ♡ Wishlist
                   </Link>
@@ -300,6 +306,7 @@ function App() {
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
               </Routes>
             </main>
             <Footer />

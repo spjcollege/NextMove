@@ -49,4 +49,8 @@ async function apiFetch(path, options = {}) {
     return res.json();
 }
 
-export { API, getToken, getUser, setAuth, clearAuth, apiFetch };
+async function getAnalytics() {
+    return apiFetch("/analytics/dashboard");
+}
+
+export { API, getToken, getUser, setAuth, clearAuth, apiFetch, getAnalytics };
