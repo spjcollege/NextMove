@@ -114,10 +114,13 @@ class Order(Base):
     __tablename__ = "orders"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(String, default="placed")  # placed → confirmed → shipped → delivered
+    status = Column(String, default="placed")  # placed → confirmed → shipped → out_for_delivery → delivered
     total = Column(Float, default=0)
     address = Column(Text, default="")
     payment_method = Column(String, default="cod")
+    tracking_number = Column(String, default="")   # e.g. NXT-20260420-0001
+    estimated_delivery = Column(DateTime, nullable=True)
+    status_updated_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

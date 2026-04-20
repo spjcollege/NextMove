@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from datetime import datetime, timedelta
+import random, string
 from app.db import get_db, Order, OrderItem, Product, UserActivity, User
 from app.auth_utils import get_current_user
 
@@ -142,3 +144,121 @@ def smart_restock(db: Session = Depends(get_db)):
 
     db.commit()
     return {"message": "Smart restock done", "restocked": restocked}
+
+
+# ─── Tracking helpers ────────────────────────────────────────────────────────
+
+STATUS_FLOW = ["placed", "confirmed", "shipped", "out_for_delivery", "delivered"]
+
+STATUS_LABELS = {
+    "placed":           {"label": "Order Placed",      "icon": "📦", "desc": "We've received your order and are processing it."},
+    "confirmed":        {"label": "Order Confirmed",    "icon": "✅", "desc": "Your order has been confirmed and is being packed."},
+    "shipped":          {"label": "Shipped",            "icon": "🚚", "desc": "Your order is on its way to the delivery hub!"},
+    "out_for_delivery": {"label": "Out for Delivery",  "icon": "🛵", "desc": "Your package is out for delivery today."},
+    "delivered":        {"label": "Delivered",          "icon": "🎉", "desc": "Your order has been delivered. Enjoy!"},
+}
+
+def generate_tracking_number(order_id: int) -> str:
+    date_str = datetime.utcnow().strftime("%Y%m%d")
+    return f"NXT-{date_str}-{order_id:04d}"
+
+def estimated_delivery_for(status: str, order_created: datetime) -> datetime:
+    days_map = {"placed": 7, "confirmed": 5, "shipped": 3, "out_for_delivery": 1, "delivered": 0}
+    return order_created + timedelta(days=days_map.get(status, 7))
+
+
+def _build_order_dict(order: Order, db: Session) -> dict:
+    items = []
+    for item in order.items:
+        product = db.query(Product).filter(Product.id == item.product_id).first()
+        items.append({
+            "product_id": item.product_id,
+            "name": product.name if product else "Unknown",
+            "image_url": product.image_url if product else "",
+            "category": product.category if product else "",
+            "quantity": item.quantity,
+            "price": item.price,
+        })
+
+    status_idx = STATUS_FLOW.index(order.status) if order.status in STATUS_FLOW else 0
+    timeline = [
+        {
+            "status": s,
+            "label": STATUS_LABELS[s]["label"],
+            "icon": STATUS_LABELS[s]["icon"],
+            "desc": STATUS_LABELS[s]["desc"],
+            "completed": i <= status_idx,
+            "active": i == status_idx,
+        }
+        for i, s in enumerate(STATUS_FLOW)
+    ]
+
+    est = order.estimated_delivery or estimated_delivery_for(order.status, order.created_at)
+
+    return {
+        "id": order.id,
+        "status": order.status,
+        "status_label": STATUS_LABELS.get(order.status, {}).get("label", order.status),
+        "status_icon": STATUS_LABELS.get(order.status, {}).get("icon", "📦"),
+        "tracking_number": order.tracking_number or generate_tracking_number(order.id),
+        "total": order.total,
+        "address": order.address,
+        "payment_method": order.payment_method,
+        "items": items,
+        "timeline": timeline,
+        "estimated_delivery": str(est.date()) if est else None,
+        "created_at": str(order.created_at),
+        "status_updated_at": str(order.status_updated_at or order.updated_at),
+    }
+
+
+@router.get("/{order_id}")
+def get_order_detail(
+    order_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get detailed order info including tracking timeline."""
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != user.id and not user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return _build_order_dict(order, db)
+
+
+class StatusUpdateRequest(BaseModel):
+    status: str
+
+
+@router.patch("/{order_id}/status")
+def update_order_status(
+    order_id: int,
+    data: StatusUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin: advance order status and auto-generate tracking number."""
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    if data.status not in STATUS_FLOW:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {STATUS_FLOW}")
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    order.status = data.status
+    order.status_updated_at = datetime.utcnow()
+
+    # Auto-assign tracking number when shipped
+    if data.status in ("shipped", "out_for_delivery", "delivered") and not order.tracking_number:
+        order.tracking_number = generate_tracking_number(order.id)
+
+    # Set estimated delivery when first confirmed
+    if data.status == "confirmed" and not order.estimated_delivery:
+        order.estimated_delivery = estimated_delivery_for("confirmed", order.created_at)
+
+    db.commit()
+    db.refresh(order)
+    return _build_order_dict(order, db)

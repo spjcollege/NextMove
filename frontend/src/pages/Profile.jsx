@@ -160,34 +160,39 @@ function Profile() {
           <Link to="/" className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>Start Shopping</Link>
         </div>
       ) : (
-        <div style={{ display: "grid", gap: 8, marginBottom: 32 }}>
+        <div style={{ display: "grid", gap: 10, marginBottom: 32 }}>
           {orders.map((order) => (
-            <div key={order.id} className="card" style={{ cursor: "pointer", padding: 16 }} onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div key={order.id} className="card" style={{ padding: "16px 20px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                 <div>
-                  <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>Order #{order.id}</span>
-                  <span className={`badge ${statusColor[order.status] || "badge-blue"}`} style={{ marginLeft: 8 }}>{order.status}</span>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)", marginTop: 4 }}>
-                    {order.items.length} items · {new Date(order.created_at).toLocaleDateString()}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                    <span style={{ fontWeight: 700, fontSize: "0.95rem" }}>Order #{order.id}</span>
+                    <span className={`badge ${statusColor[order.status] || "badge-blue"}`}>{order.status}</span>
+                  </div>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)" }}>
+                    {order.items?.length} item{order.items?.length !== 1 ? "s" : ""} · {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: 2 }}>
+                    {order.items?.map(i => i.name).join(", ")}
                   </p>
                 </div>
-                <span style={{ fontWeight: 700, color: "var(--brand-gold)", fontSize: "1.1rem" }}>₹{order.total}</span>
-              </div>
-
-              {expandedOrder === order.id && (
-                <div style={{ marginTop: 16, borderTop: "1px solid var(--border-subtle)", paddingTop: 12 }}>
-                  {order.items.map((item, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: "0.82rem" }}>
-                      <span style={{ color: "var(--text-secondary)" }}>{item.name} × {item.quantity}</span>
-                      <span style={{ fontWeight: 600 }}>₹{item.price * item.quantity}</span>
-                    </div>
-                  ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <span style={{ fontWeight: 800, color: "var(--brand-gold)", fontSize: "1.1rem" }}>₹{order.total}</span>
+                  <Link
+                    to={`/orders/${order.id}`}
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    📍 Track Order
+                  </Link>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
       )}
+
 
       {/* Enrolled Courses */}
       <h2 style={{ marginBottom: 16 }}>📚 My Courses</h2>
