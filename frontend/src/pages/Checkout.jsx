@@ -34,8 +34,10 @@ function Checkout() {
   }, [user]);
 
   const subTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const pointsDiscount = Math.min(pointsToUse, subTotal * 0.5);
+  const potentialDiscount = pointsToUse * 0.1;
+  const pointsDiscount = Math.min(potentialDiscount, subTotal * 0.5);
   const total = subTotal - pointsDiscount;
+  const pointsToActuallyUse = pointsDiscount * 10;
 
     const handleOrder = async () => {
       if (!user) {
@@ -123,7 +125,7 @@ function Checkout() {
     const placeOrderBackend = async (finalAddress, paymentStatus) => {
       setLoading(true);
       try {
-        await apiFetch("/orders/place", {
+        const res = await apiFetch("/orders/place", {
           method: "POST",
           body: JSON.stringify({
             items: cart.map((item) => ({ product_id: item.id, quantity: item.quantity })),
@@ -132,8 +134,20 @@ function Checkout() {
             points_to_use: pointsToUse,
           }),
         });
+        
+        // Update user points in context immediately
+        if (user && res.new_loyalty_points !== undefined) {
+          login(localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : "", {
+            ...user,
+            loyalty_points: res.new_loyalty_points
+          });
+        }
+
         clearCart();
-        showToast("Order placed successfully! 🎉");
+        const pointsMsg = res.points_earned >= 0 
+          ? `You gained ${res.points_earned} points!` 
+          : `You spent ${Math.abs(res.points_earned)} points!`;
+        showToast(`Order placed successfully! ${pointsMsg} 🎉`);
         navigate("/profile");
       } catch (e) {
         showToast(e.message, "error");
@@ -231,7 +245,7 @@ function Checkout() {
           
           {user?.loyalty_points > 0 && (
             <div style={{ marginTop: 16, marginBottom: 8, padding: 12, background: "rgba(212,168,67,0.1)", borderRadius: "var(--radius-md)" }}>
-              <div style={{ fontSize: "0.9rem", marginBottom: 8 }}>Available Points: <strong>{user.loyalty_points}</strong> (1 point = ₹1)</div>
+              <div style={{ fontSize: "0.9rem", marginBottom: 8 }}>Available Points: <strong>{user.loyalty_points}</strong> (10 pts = ₹1)</div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <input 
                   type="number" 
@@ -243,7 +257,10 @@ function Checkout() {
                 />
                 <button className="btn btn-sm btn-outline" onClick={() => setPointsToUse(user.loyalty_points)}>Use Max</button>
               </div>
-              <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: 8 }}>* Max discount 50% of subtotal</p>
+              <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: 8 }}>
+                * Using <b>{Math.floor(pointsToActuallyUse)}</b> points for ₹{pointsDiscount.toFixed(2)} discount.
+                <br/>* Max discount 50% of subtotal
+              </p>
             </div>
           )}
 

@@ -75,6 +75,7 @@ class Product(Base):
     rating_avg = Column(Float, default=0.0)
     rating_count = Column(Integer, default=0)
     is_featured = Column(Boolean, default=False)
+    loyalty_points = Column(Integer, default=0)  # Points earned on purchase (or cost if negative)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     reviews = relationship("Review", back_populates="product")

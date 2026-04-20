@@ -18,7 +18,8 @@ export default function AdminDashboard() {
     category: "chess sets",
     stock: 10,
     description: "",
-    image_url: ""
+    image_url: "",
+    loyalty_points: 0
   });
 
   useEffect(() => {
@@ -49,7 +50,13 @@ export default function AdminDashboard() {
     try {
       await apiFetch("/products/", {
         method: "POST",
-        body: JSON.stringify({ ...newProduct, price: parseFloat(newProduct.price), original_price: parseFloat(newProduct.original_price || newProduct.price), stock: parseInt(newProduct.stock) })
+        body: JSON.stringify({ 
+          ...newProduct, 
+          price: parseFloat(newProduct.price), 
+          original_price: parseFloat(newProduct.original_price || newProduct.price), 
+          stock: parseInt(newProduct.stock),
+          loyalty_points: parseInt(newProduct.loyalty_points)
+        })
       });
       showToast("Product added successfully!");
       setNewProduct({ name: "", price: "", original_price: "", category: "chess sets", stock: 10, description: "", image_url: "" });
@@ -136,13 +143,16 @@ export default function AdminDashboard() {
                     <input className="input" type="number" placeholder="Price" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
                     <input className="input" type="number" placeholder="Stock" value={newProduct.stock} onChange={e => setNewProduct({...newProduct, stock: e.target.value})} required />
                 </div>
-                <select className="input" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})}>
-                    <option value="chess sets">Chess Sets</option>
-                    <option value="boards">Boards</option>
-                    <option value="clocks">Clocks</option>
-                    <option value="books">Books</option>
-                    <option value="accessories">Accessories</option>
-                </select>
+                <div style={{ display: "flex", gap: "12px" }}>
+                    <select className="input" style={{ flex: 1 }} value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})}>
+                        <option value="chess sets">Chess Sets</option>
+                        <option value="boards">Boards</option>
+                        <option value="clocks">Clocks</option>
+                        <option value="books">Books</option>
+                        <option value="accessories">Accessories</option>
+                    </select>
+                    <input className="input" type="number" style={{ flex: 1 }} placeholder="Loyalty Points" value={newProduct.loyalty_points} onChange={e => setNewProduct({...newProduct, loyalty_points: e.target.value})} />
+                </div>
                 <textarea className="input" placeholder="Description" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} style={{ minHeight: "60px" }} />
                 <button className="btn btn-primary" type="submit">Create Product</button>
               </form>

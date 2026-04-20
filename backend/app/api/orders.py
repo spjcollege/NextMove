@@ -29,6 +29,7 @@ def place_order(
     db: Session = Depends(get_db),
 ):
     total = 0
+    points_earned = 0
     order_items = []
     for item in data.items:
         product = db.query(Product).filter(Product.id == item.product_id).first()
@@ -42,7 +43,9 @@ def place_order(
 
         # Pull strategy: reduce stock
         product.stock -= item.quantity
+        # Earn rate: 1 rupee = 1 point
         item_total = product.price * item.quantity
+        points_earned += int(item_total)
         total += item_total
 
         order_items.append(OrderItem(
@@ -58,21 +61,37 @@ def place_order(
             product_id=product.id,
         ))
 
-    # Apply loyalty points discount: 1 point = 1 Rupee discount
+    # Apply loyalty points discount: 100 points = 10 Rupee discount (1 point = 0.1 Rupee)
+    points_to_use = data.points_to_use
     discount = 0
-    if data.points_to_use > 0:
-        if data.points_to_use > user.loyalty_points:
+    if points_to_use > 0:
+        if points_to_use > user.loyalty_points:
             raise HTTPException(status_code=400, detail="Not enough loyalty points")
         
         # Max discount 50% to prevent abuse
+        potential_discount = points_to_use * 0.1
         max_discount = total * 0.5
-        discount = min(float(data.points_to_use), max_discount)
-        total -= discount
-        user.loyalty_points -= int(discount)
+        discount = min(potential_discount, max_discount)
+        
+        # If discount capped, adjust points_to_use
+        if potential_discount > max_discount:
+            points_to_use = int(max_discount * 10)
+            discount = max_discount
 
-    # Earn new points: 1 point per 100 Rs spent
-    points_earned = int(total // 100)
-    user.loyalty_points += points_earned
+        total -= discount
+
+    # Calculate net points change
+    # points_earned is what you get from order
+    # points_to_use is what you spend
+    net_points_change = points_earned - points_to_use
+    
+    if user.loyalty_points + net_points_change < 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Not enough loyalty points. You need {points_to_use} points."
+        )
+
+    user.loyalty_points += net_points_change
 
     order = Order(
         user_id=user.id,
@@ -89,6 +108,8 @@ def place_order(
         "message": "Order placed successfully",
         "order_id": order.id,
         "total": total,
+        "points_earned": net_points_change,
+        "new_loyalty_points": user.loyalty_points
     }
 
 

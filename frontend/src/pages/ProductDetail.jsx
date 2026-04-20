@@ -102,6 +102,26 @@ function ProductDetail() {
               </>
             )}
           </div>
+          
+          {product.loyalty_points !== 0 && (
+            <div style={{ 
+              marginBottom: 20, 
+              padding: "8px 12px", 
+              borderRadius: "var(--radius-md)", 
+              background: product.loyalty_points > 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: "0.85rem",
+              fontWeight: 500,
+              color: product.loyalty_points > 0 ? "var(--brand-emerald)" : "#EF4444"
+            }}>
+              <span>{product.loyalty_points > 0 ? "✨" : "💎"}</span>
+              {product.loyalty_points > 0 
+                ? `Earn ${product.loyalty_points} loyalty points` 
+                : `Costs ${Math.abs(product.loyalty_points)} loyalty points`}
+            </div>
+          )}
 
           <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: 20 }}>
             {product.description}

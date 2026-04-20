@@ -91,12 +91,12 @@ function Cart() {
           {user && (
             <div style={{ background: "rgba(212,168,67,0.05)", padding: "12px", borderRadius: "10px", margin: "12px 0", border: "1px solid rgba(212,168,67,0.1)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: 4 }}>
-                <span>Your Points</span>
+                <span>Your Current Points</span>
                 <span style={{ fontWeight: 700 }}>{user.loyalty_points || 0}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--brand-emerald)" }}>
-                <span>Earn from this order</span>
-                <span style={{ fontWeight: 700 }}>+{Math.floor(total / 100)}</span>
+                <span>Points you'll earn</span>
+                <span style={{ fontWeight: 700 }}>+{Math.floor(total)}</span>
               </div>
             </div>
           )}

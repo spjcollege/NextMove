@@ -18,6 +18,7 @@ class ProductCreate(BaseModel):
     stock: int
     category: str
     image_url: Optional[str] = ""
+    loyalty_points: Optional[int] = 0
 
 @router.post("/")
 def create_product(
@@ -35,7 +36,8 @@ def create_product(
         original_price=data.original_price or data.price,
         stock=data.stock,
         category=data.category,
-        image_url=data.image_url
+        image_url=data.image_url,
+        loyalty_points=data.loyalty_points or 0
     )
     db.add(product)
     db.commit()
@@ -56,6 +58,7 @@ def _product_dict(p: Product):
         "rating_avg": round(p.rating_avg, 1),
         "rating_count": p.rating_count,
         "is_featured": p.is_featured,
+        "loyalty_points": p.loyalty_points,
     }
 
 

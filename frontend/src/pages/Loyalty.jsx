@@ -40,7 +40,7 @@ export default function Loyalty() {
               <span style={{ fontSize: "1.5rem" }}>🛍️</span>
               <div>
                 <strong>Shop & Earn</strong>
-                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Get 1 point for every ₹100 spent on products.</p>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Earn specific points as labeled on each product in our shop.</p>
               </div>
             </li>
             <li style={{ display: "flex", gap: "12px" }}>
