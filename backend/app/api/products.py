@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.db import get_db, Product, UserActivity
@@ -7,6 +7,40 @@ import json
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
+from pydantic import BaseModel
+from typing import Optional
+
+class ProductCreate(BaseModel):
+    name: str
+    description: str
+    price: float
+    original_price: Optional[float] = None
+    stock: int
+    category: str
+    image_url: Optional[str] = ""
+
+@router.post("/")
+def create_product(
+    data: ProductCreate,
+    user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    product = Product(
+        name=data.name,
+        description=data.description,
+        price=data.price,
+        original_price=data.original_price or data.price,
+        stock=data.stock,
+        category=data.category,
+        image_url=data.image_url
+    )
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    return _product_dict(product)
 
 def _product_dict(p: Product):
     return {
@@ -79,7 +113,6 @@ def get_categories(db: Session = Depends(get_db)):
 def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Product not found")
     return _product_dict(product)
 
@@ -103,3 +136,22 @@ def recommend_products(user_id: int, db: Session = Depends(get_db)):
         Product.id.notin_(purchased_ids)
     ).order_by(Product.rating_avg.desc()).limit(4).all()
     return [_product_dict(p) for p in products]
+
+
+@router.patch("/{product_id}/stock")
+def update_stock(
+    product_id: int,
+    stock: int,
+    user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    product.stock = stock
+    db.commit()
+    return {"message": "Stock updated", "product_id": product_id, "new_stock": product.stock}

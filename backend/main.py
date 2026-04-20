@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import (
     products, users, auth, orders, courses,
     community, reviews, wishlist, forums, puzzles,
-    leaderboard, news, payment, analytics
+    leaderboard, news, payment, analytics, competitions
 )
 
 app = FastAPI(title="NextMove API", version="2.0")
@@ -32,6 +32,7 @@ app.include_router(leaderboard.router)
 app.include_router(news.router)
 app.include_router(payment.router)
 app.include_router(analytics.router)
+app.include_router(competitions.router)
 
 
 @app.get("/")

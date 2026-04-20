@@ -301,8 +301,7 @@ textarea.input {
 
 /* ─── Page Container ─── */
 .page {
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
   padding: 32px 24px;
   min-height: calc(100vh - var(--nav-height) - 80px);
 }
@@ -462,6 +461,15 @@ textarea.input {
   animation: slideUp 0.5s ease;
 }
 
+.animate-page-transition {
+  animation: pageSlideFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageSlideFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 768px) {
   h1 { font-size: 1.75rem; }
@@ -556,4 +564,93 @@ textarea.input {
   color: var(--brand-gold);
   transform: rotate(15deg);
   box-shadow: var(--shadow-gold);
+}
+/* ─── Competitions & Marketing ─── */
+.competitions-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 32px;
+}
+
+.competitions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.competition-card {
+  position: relative;
+  overflow: hidden;
+  padding: 32px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-smooth);
+}
+
+.competition-card:hover {
+  border-color: var(--brand-gold);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-gold);
+}
+
+.comp-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 12px;
+  background: var(--brand-gold);
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+.comp-stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.marketing-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ad-card {
+  padding: 20px;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-tertiary));
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.ad-card h4 {
+  color: var(--brand-gold);
+  margin-bottom: 8px;
+}
+
+.ad-image {
+  width: 100%;
+  height: 120px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .competitions-layout {
+    grid-template-columns: 1fr;
+  }
 }

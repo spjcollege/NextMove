@@ -28,6 +28,7 @@ users = [
         full_name="NextMove Admin", is_admin=True,
         rating=2200, puzzle_rating=2000,
         subscription_tier="pro",
+        loyalty_points=5000,
         bio="Platform administrator & chess enthusiast.",
     ),
     User(
@@ -267,6 +268,34 @@ forum_posts = [
     ForumPost(user_id=admin_user.id, title="Share Your Best Game!", content="Post your most memorable chess game here! Whether it's a brilliant sacrifice, a come-from-behind win, or just a game you're proud of — we want to see it!", category="general", likes=8, views=120),
 ]
 db.add_all(forum_posts)
+db.commit()
+
+# ═══════════════════════════════════════════
+#  COMPETITIONS (dummy)
+# ═══════════════════════════════════════════
+from app.db import Competition
+competitions = [
+    Competition(title="NextMove Summer Open", description="Our annual summer tournament for all skill levels.", prize_pool="5000", points_reward=100, status="active"),
+    Competition(title="Blitz Championship 2026", description="Fast-paced blitz tournament. 3+2 time control.", prize_pool="2000", points_reward=200, status="active"),
+    Competition(title="Beginner's Cup", description="Exclusive for players rated below 1200.", prize_pool="1000", points_reward=50, status="upcoming"),
+]
+db.add_all(competitions)
+db.commit()
+
+# ═══════════════════════════════════════════
+#  LIMITED EDITION PRODUCT
+# ═══════════════════════════════════════════
+limited_board = Product(
+    name="Legendary Grandmaster Chess Board",
+    description="EXCLUSIVE: Hand-crafted from 1000-year old oak. Only accessible to our top loyalists with 100,000 points.",
+    price=0,
+    original_price=99999,
+    stock=1,
+    category="boards",
+    is_featured=True,
+    image_url="https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&q=80&w=800"
+)
+db.add(limited_board)
 db.commit()
 
 db.close()

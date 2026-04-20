@@ -22,6 +22,15 @@ import Leaderboard from "./pages/Leaderboard";
 import News from "./pages/News";
 import SearchResults from "./pages/SearchResults";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Competitions from "./pages/Competitions";
+import Marketing from "./pages/Marketing";
+import MarketingDetail from "./pages/MarketingDetail";
+import PromotionLanding from "./pages/PromotionLanding";
+import TournamentLanding from "./pages/TournamentLanding";
+import Support from "./pages/Support";
+import Loyalty from "./pages/Loyalty";
+import AdSideBar from "./components/AdSideBar";
 
 // ─── Auth Context ───
 export const AuthContext = createContext(null);
@@ -60,19 +69,20 @@ function Navbar() {
     { path: "/forums", label: "Forums", icon: "💬" },
     { path: "/community", label: "Community", icon: "👥" },
     { path: "/leaderboard", label: "Rankings", icon: "🏆" },
+    { path: "/competitions", label: "Competitions", icon: "🎌" },
     { path: "/news", label: "News", icon: "📰" },
+    { path: "/support", label: "Support", icon: "🎧" },
+    { path: "/admin/marketing", label: "Marketing", icon: "📢" },
   ];
 
   return (
     <nav className="navbar">
       <div className="nav-inner">
-        {/* Logo */}
         <Link to="/" className="nav-logo">
           <span className="logo-icon">♔</span>
           <span className="logo-text">NextMove</span>
         </Link>
 
-        {/* Search */}
         <form className="nav-search" onSubmit={handleSearch}>
           <span className="search-icon">🔍</span>
           <input
@@ -84,7 +94,6 @@ function Navbar() {
           />
         </form>
 
-        {/* Links */}
         <div className={`nav-links ${mobileNav ? "open" : ""}`}>
           {navLinks.map((link) => (
             <Link
@@ -99,80 +108,43 @@ function Navbar() {
           ))}
         </div>
 
-        {/* Actions */}
         <div className="nav-actions">
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
+          <button className="theme-toggle" onClick={toggleTheme}>
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
-
-          <Link to="/wishlist" className="nav-action-btn" title="Wishlist">
-            ♡
+          <Link to="/wishlist" className="nav-action-btn">♡</Link>
+          <Link to="/cart" className="nav-action-btn cart-btn">
+            🛒 {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
-
-          <Link to="/cart" className="nav-action-btn cart-btn" title="Cart">
-            🛒
-            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-          </Link>
-
           {user ? (
             <div className="user-menu-wrap">
-              <button
-                className="user-avatar-btn"
-                onClick={() => setShowMenu(!showMenu)}
-              >
-                <div className="user-avatar">
-                  {user.username?.charAt(0).toUpperCase()}
-                </div>
+              <button className="user-avatar-btn" onClick={() => setShowMenu(!showMenu)}>
+                <div className="user-avatar">{user.username?.charAt(0).toUpperCase()}</div>
               </button>
-
               {showMenu && (
                 <div className="user-dropdown animate-slide-up">
                   <div className="dropdown-header">
-                    <div className="user-avatar sm">
-                      {user.username?.charAt(0).toUpperCase()}
-                    </div>
+                    <div className="user-avatar sm">{user.username?.charAt(0).toUpperCase()}</div>
                     <div>
                       <p className="dropdown-name">{user.full_name || user.username}</p>
                       <p className="dropdown-tier">{user.subscription_tier} member</p>
                     </div>
                   </div>
-                  <hr className="divider" style={{ margin: "8px 0" }} />
-                  <Link to="/profile" className="dropdown-item" onClick={() => setShowMenu(false)}>
-                    👤 Profile
-                  </Link>
+                  <hr className="divider" />
+                  <Link to="/profile" className="dropdown-item" onClick={() => setShowMenu(false)}>👤 Profile</Link>
                   {user.is_admin && (
-                    <Link to="/admin/dashboard" className="dropdown-item" onClick={() => setShowMenu(false)}>
-                      📊 Dashboard
-                    </Link>
+                    <>
+                      <Link to="/admin/dashboard" className="dropdown-item" onClick={() => setShowMenu(false)}>📊 Dashboard</Link>
+                      <Link to="/admin/marketing" className="dropdown-item" onClick={() => setShowMenu(false)}>📢 Marketing</Link>
+                    </>
                   )}
-                  <Link to="/wishlist" className="dropdown-item" onClick={() => setShowMenu(false)}>
-                    ♡ Wishlist
-                  </Link>
-                  <button
-                    className="dropdown-item logout"
-                    onClick={() => { logout(); setShowMenu(false); }}
-                  >
-                    🚪 Logout
-                  </button>
+                  <button className="dropdown-item logout" onClick={() => { logout(); setShowMenu(false); }}>🚪 Logout</button>
                 </div>
               )}
             </div>
           ) : (
-            <Link to="/auth" className="btn btn-primary btn-sm">
-              Sign In
-            </Link>
+            <Link to="/auth" className="btn btn-primary btn-sm">Sign In</Link>
           )}
-
-          <button
-            className="mobile-toggle"
-            onClick={() => setMobileNav(!mobileNav)}
-          >
-            {mobileNav ? "✕" : "☰"}
-          </button>
         </div>
       </div>
     </nav>
@@ -194,37 +166,83 @@ function Footer() {
             <h4>Shop</h4>
             <Link to="/?category=boards">Boards</Link>
             <Link to="/?category=pieces">Pieces</Link>
-            <Link to="/?category=books">Books</Link>
-          </div>
-          <div className="footer-col">
-            <h4>Learn</h4>
-            <Link to="/courses">Courses</Link>
-            <Link to="/puzzles">Puzzles</Link>
           </div>
           <div className="footer-col">
             <h4>Community</h4>
             <Link to="/forums">Forums</Link>
-            <Link to="/leaderboard">Rankings</Link>
-            <Link to="/news">News</Link>
+            <Link to="/loyalty">Loyalty Program</Link>
+            <Link to="/support">Support</Link>
+            <Link to="/privacy-policy">Privacy Policy</Link>
           </div>
         </div>
       </div>
       <div className="footer-bottom">
-        <p>© 2026 NextMove Chess Platform. Built with ♟ for the chess community.</p>
+        <p>© 2026 NextMove Chess Platform. Built with ♟</p>
       </div>
     </footer>
   );
 }
 
-// ─── App ───
+// ─── Main Content Wrapper ───
+function AppContent() {
+  const { theme, showToast } = useAuth();
+  const location = useLocation();
+  const [toast, setToast] = useState(null);
+
+  // Note: Local toast handling if needed, or use context-based one.
+  // The original App had a showToast function that set toast state.
+  
+  return (
+    <div className="app-layout">
+      <Navbar />
+      <div className="container" style={{ display: "flex", gap: "32px", maxWidth: "1500px", margin: "0 auto", padding: "0 20px" }}>
+        <main className="app-main" style={{ flex: 1, minWidth: 0 }}>
+          <div key={location.pathname} className="animate-page-transition">
+            <Routes location={location}>
+              <Route path="/" element={<Home />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:id" element={<CourseDetail />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/forums" element={<Forums />} />
+              <Route path="/forums/:id" element={<ForumThread />} />
+              <Route path="/puzzles" element={<Puzzles />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/marketing" element={<Marketing />} />
+              <Route path="/admin/marketing/:type/:id" element={<MarketingDetail />} />
+              <Route path="/loyalty" element={<Loyalty />} />
+              <Route path="/promotion/:id" element={<PromotionLanding />} />
+              <Route path="/tournament/:id" element={<TournamentLanding />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/competitions" element={<Competitions />} />
+            </Routes>
+          </div>
+        </main>
+        <AdSideBar />
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+// ─── App Root ───
 function App() {
   const [user, setUser] = useState(getUser());
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
   });
-  const [toast, setToast] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -246,7 +264,6 @@ function App() {
     clearAuth();
     setUser(null);
     setCart([]);
-    showToast("Logged out successfully", "info");
   };
 
   const showToast = (message, type = "success") => {
@@ -259,9 +276,7 @@ function App() {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + qty }
-            : item
+          item.id === product.id ? { ...item, quantity: item.quantity + qty } : item
         );
       }
       return [...prev, { ...product, quantity: qty }];
@@ -269,15 +284,11 @@ function App() {
     showToast(`${product.name} added to cart`);
   };
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
+  const removeFromCart = (id) => setCart((prev) => prev.filter((item) => item.id !== id));
 
   const updateQuantity = (id, qty) => {
     if (qty <= 0) return removeFromCart(id);
-    setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: qty } : item))
-    );
+    setCart((prev) => prev.map((item) => (item.id === id ? { ...item, quantity: qty } : item)));
   };
 
   const clearCart = () => setCart([]);
@@ -286,33 +297,7 @@ function App() {
     <AuthContext.Provider value={{ user, login, logout, showToast, theme, toggleTheme }}>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>
         <BrowserRouter>
-          <div className="app-layout">
-            <Navbar />
-            <main className="app-main">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/courses/:id" element={<CourseDetail />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/forums" element={<Forums />} />
-                <Route path="/forums/:id" element={<ForumThread />} />
-                <Route path="/puzzles" element={<Puzzles />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/news" element={<News />} />
-                <Route path="/search" element={<SearchResults />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-
-          {/* Toast Notification */}
+          <AppContent />
           {toast && (
             <div className={`toast toast-${toast.type}`}>
               {toast.type === "success" && "✅"}

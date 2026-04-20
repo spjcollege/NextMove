@@ -118,8 +118,17 @@ function ProductDetail() {
               <span style={{ padding: "0 16px", fontWeight: 600 }}>{qty}</span>
               <button className="btn btn-sm" style={{ borderRadius: "0 var(--radius-md) var(--radius-md) 0" }} onClick={() => setQty(qty + 1)}>+</button>
             </div>
-            <button className="btn btn-primary btn-lg" onClick={handleAddToCart} disabled={product.stock === 0}>
-              🛒 Add to Cart
+            <button 
+              className="btn btn-primary btn-lg" 
+              onClick={handleAddToCart} 
+              disabled={
+                product.stock === 0 || 
+                (product.description.includes("100,000 points") && (!user || user.loyalty_points < 100000))
+              }
+            >
+              {product.description.includes("100,000 points") && (!user || user.loyalty_points < 100000) 
+                ? "🔒 Locked (100k points required)" 
+                : "🛒 Add to Cart"}
             </button>
             {user && (
               <button className="btn btn-outline" onClick={handleAddToWishlist}>♡</button>

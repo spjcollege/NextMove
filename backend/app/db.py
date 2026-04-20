@@ -45,6 +45,7 @@ class User(Base):
     puzzle_rating = Column(Integer, default=800)
     is_admin = Column(Boolean, default=False)
     subscription_tier = Column(String, default="free")  # free / premium / pro
+    loyalty_points = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # relationships
@@ -267,6 +268,39 @@ class NewsArticle(Base):
     author = Column(String, default="NextMove Team")
     category = Column(String, default="news")  # news, tutorial, tournament, update
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════
+#  COMPETITIONS
+# ═══════════════════════════════════════════
+
+class Competition(Base):
+    __tablename__ = "competitions"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, default="")
+    prize_pool = Column(String, default="")
+    entry_fee = Column(Float, default=0)
+    points_reward = Column(Integer, default=50) # Points for winning
+    start_date = Column(DateTime, default=datetime.utcnow)
+    end_date = Column(DateTime, default=datetime.utcnow)
+    status = Column(String, default="upcoming")  # upcoming, active, completed
+    max_participants = Column(Integer, default=100)
+    image_url = Column(String, default="")
+
+    participants = relationship("CompetitionParticipation", back_populates="competition")
+
+
+class CompetitionParticipation(Base):
+    __tablename__ = "competition_participations"
+    id = Column(Integer, primary_key=True, index=True)
+    competition_id = Column(Integer, ForeignKey("competitions.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    joined_at = Column(DateTime, default=datetime.utcnow)
+    is_winner = Column(Boolean, default=False)
+
+    competition = relationship("Competition", back_populates="participants")
+    user = relationship("User")
 
 
 # ═══════════════════════════════════════════

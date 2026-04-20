@@ -67,6 +67,16 @@ def get_dashboard_stats(
         "price": p.price
     } for p in low_stock_items_query]
 
+    # Added all products for vendor management
+    all_products_query = db.query(Product).all()
+    all_products = [{
+        "id": p.id,
+        "name": p.name,
+        "stock": p.stock,
+        "price": p.price,
+        "category": p.category
+    } for p in all_products_query]
+
     # Category Performance
     categories = db.query(Product.category).distinct().all()
     category_perf = []
@@ -107,7 +117,8 @@ def get_dashboard_stats(
         "inventory": {
             "total_items": total_items,
             "total_stock_value": total_stock_value,
-            "low_stock_items": low_stock_items
+            "low_stock_items": low_stock_items,
+            "all_products": all_products
         },
         "category_performance": category_perf,
         "marketing": {

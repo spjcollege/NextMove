@@ -114,6 +114,13 @@ function Profile() {
             <div className="stat-label">Enrolled Courses</div>
           </div>
         </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: "rgba(239,68,68,0.15)", color: "#EF4444" }}>🎁</div>
+          <div>
+            <div className="stat-value">{user.loyalty_points || 0}</div>
+            <div className="stat-label">Loyalty Points</div>
+          </div>
+        </div>
       </div>
 
       {/* Addresses */}

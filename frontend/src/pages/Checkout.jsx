@@ -13,6 +13,7 @@ function Checkout() {
   const [newAddress, setNewAddress] = useState("");
   const [payment, setPayment] = useState("cod");
   const [loading, setLoading] = useState(false);
+  const [pointsToUse, setPointsToUse] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -32,7 +33,9 @@ function Checkout() {
     }
   }, [user]);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const pointsDiscount = Math.min(pointsToUse, subTotal * 0.5);
+  const total = subTotal - pointsDiscount;
 
     const handleOrder = async () => {
       if (!user) {
@@ -40,6 +43,12 @@ function Checkout() {
         navigate("/auth");
         return;
       }
+
+      if (pointsToUse > user.loyalty_points) {
+        showToast("Not enough loyalty points", "error");
+        return;
+      }
+
       let finalAddress = "";
       if (selectedAddressId === "new") {
         if (!newAddress.trim()) {
@@ -81,23 +90,7 @@ function Checkout() {
             prefill: { 
                 name: user.full_name || user.username, 
                 email: user.email || "user@example.com",
-                contact: "9999999999" // Dummy contact often required to reveal UPI options
-            },
-            config: {
-                display: {
-                    blocks: {
-                        upi_and_cards: {
-                            name: "UPI & Cards",
-                            instruments: [
-                                { method: "upi" },
-                                { method: "card" },
-                                { method: "wallet" },
-                                { method: "netbanking" }
-                            ]
-                        }
-                    },
-                    sequence: ["block.upi_and_cards"]
-                }
+                contact: "9999999999" 
             },
             handler: async function (response) {
               try {
@@ -117,10 +110,6 @@ function Checkout() {
             }
           };
           const rzp = new window.Razorpay(options);
-          rzp.on("payment.failed", function (response) {
-            showToast("Payment failed or cancelled.", "error");
-            setLoading(false);
-          });
           rzp.open();
         } catch (e) {
             showToast(e.message, "error");
@@ -140,6 +129,7 @@ function Checkout() {
             items: cart.map((item) => ({ product_id: item.id, quantity: item.quantity })),
             address: finalAddress,
             payment_method: paymentStatus,
+            points_to_use: pointsToUse,
           }),
         });
         clearCart();
@@ -238,8 +228,40 @@ function Checkout() {
               <span style={{ fontWeight: 600 }}>₹{item.price * item.quantity}</span>
             </div>
           ))}
+          
+          {user?.loyalty_points > 0 && (
+            <div style={{ marginTop: 16, marginBottom: 8, padding: 12, background: "rgba(212,168,67,0.1)", borderRadius: "var(--radius-md)" }}>
+              <div style={{ fontSize: "0.9rem", marginBottom: 8 }}>Available Points: <strong>{user.loyalty_points}</strong> (1 point = ₹1)</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <input 
+                  type="number" 
+                  className="input" 
+                  style={{ width: "120px" }}
+                  value={pointsToUse}
+                  onChange={(e) => setPointsToUse(Math.min(user.loyalty_points, Math.max(0, parseInt(e.target.value) || 0)))}
+                  placeholder="Points to use"
+                />
+                <button className="btn btn-sm btn-outline" onClick={() => setPointsToUse(user.loyalty_points)}>Use Max</button>
+              </div>
+              <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: 8 }}>* Max discount 50% of subtotal</p>
+            </div>
+          )}
+
           <hr className="divider" />
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "1.2rem", fontWeight: 700 }}>
+          
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+            <span>Subtotal</span>
+            <span>₹{subTotal}</span>
+          </div>
+          
+          {pointsDiscount > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: "0.9rem", color: "var(--brand-emerald)" }}>
+              <span>Loyalty Discount</span>
+              <span>-₹{pointsDiscount}</span>
+            </div>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "1.2rem", fontWeight: 700, marginTop: 8 }}>
             <span>Total</span>
             <span style={{ color: "var(--brand-gold)" }}>₹{total}</span>
           </div>

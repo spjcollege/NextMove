@@ -1,10 +1,11 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { CartContext } from "../App";
+import { CartContext, useAuth } from "../App";
 import { getCategoryEmoji } from "./Home";
 
 function Cart() {
   const { cart, removeFromCart, updateQuantity } = useContext(CartContext);
+  const { user } = useAuth();
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const savings = cart.reduce((sum, item) => {
@@ -86,6 +87,19 @@ function Cart() {
             <span>Shipping</span>
             <span style={{ color: "var(--brand-emerald)" }}>Free</span>
           </div>
+
+          {user && (
+            <div style={{ background: "rgba(212,168,67,0.05)", padding: "12px", borderRadius: "10px", margin: "12px 0", border: "1px solid rgba(212,168,67,0.1)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: 4 }}>
+                <span>Your Points</span>
+                <span style={{ fontWeight: 700 }}>{user.loyalty_points || 0}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--brand-emerald)" }}>
+                <span>Earn from this order</span>
+                <span style={{ fontWeight: 700 }}>+{Math.floor(total / 100)}</span>
+              </div>
+            </div>
+          )}
 
           <hr className="divider" />
 

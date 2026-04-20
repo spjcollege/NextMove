@@ -135,7 +135,10 @@ def complete_lesson(
         # Update progress
         course = db.query(Course).filter(Course.id == course_id).first()
         if course and course.lesson_count > 0:
-            enrollment.progress = round(len(completed) / course.lesson_count * 100, 1)
+            new_p = round(len(completed) / course.lesson_count * 100, 1)
+            if new_p >= 100 and enrollment.progress < 100:
+                user.loyalty_points += 50
+            enrollment.progress = new_p
 
     db.commit()
     return {"message": "Lesson completed", "progress": enrollment.progress}

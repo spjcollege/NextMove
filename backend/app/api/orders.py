@@ -17,6 +17,7 @@ class PlaceOrderRequest(BaseModel):
     items: List[OrderItemRequest]
     address: str = ""
     payment_method: str = "cod"
+    points_to_use: int = 0
 
 
 @router.post("/place")
@@ -27,7 +28,6 @@ def place_order(
 ):
     total = 0
     order_items = []
-
     for item in data.items:
         product = db.query(Product).filter(Product.id == item.product_id).first()
         if not product:
@@ -55,6 +55,22 @@ def place_order(
             action="purchase",
             product_id=product.id,
         ))
+
+    # Apply loyalty points discount: 1 point = 1 Rupee discount
+    discount = 0
+    if data.points_to_use > 0:
+        if data.points_to_use > user.loyalty_points:
+            raise HTTPException(status_code=400, detail="Not enough loyalty points")
+        
+        # Max discount 50% to prevent abuse
+        max_discount = total * 0.5
+        discount = min(float(data.points_to_use), max_discount)
+        total -= discount
+        user.loyalty_points -= int(discount)
+
+    # Earn new points: 1 point per 100 Rs spent
+    points_earned = int(total // 100)
+    user.loyalty_points += points_earned
 
     order = Order(
         user_id=user.id,

@@ -35,6 +35,7 @@ def _user_dict(user: User):
         "subscription_tier": user.subscription_tier,
         "is_admin": user.is_admin,
         "address": user.address,
+        "loyalty_points": user.loyalty_points,
         "created_at": str(user.created_at),
     }
 
