@@ -56,6 +56,47 @@ def get_dashboard_stats(
                 "revenue": tp.total_sold * product.price
             })
 
+    # Inventory Stats
+    total_items = db.query(func.count(Product.id)).scalar() or 0
+    total_stock_value = db.query(func.sum(Product.price * Product.stock)).scalar() or 0.0
+    low_stock_items_query = db.query(Product).filter(Product.stock < 5).all()
+    low_stock_items = [{
+        "id": p.id,
+        "name": p.name,
+        "stock": p.stock,
+        "price": p.price
+    } for p in low_stock_items_query]
+
+    # Category Performance
+    categories = db.query(Product.category).distinct().all()
+    category_perf = []
+    for (cat_name,) in categories:
+        # Average price in category
+        avg_price = db.query(func.avg(Product.price)).filter(Product.category == cat_name).scalar() or 0
+        # Total sold in category
+        cat_sold = db.query(func.sum(OrderItem.quantity))\
+            .join(Product)\
+            .filter(Product.category == cat_name).scalar() or 0
+        # Revenue in category
+        cat_revenue = db.query(func.sum(OrderItem.quantity * OrderItem.price))\
+            .join(Product)\
+            .filter(Product.category == cat_name).scalar() or 0
+        
+        category_perf.append({
+            "category": cat_name,
+            "sold": cat_sold,
+            "revenue": cat_revenue,
+            "avg_price": avg_price
+        })
+
+    # Recent Registrations (Marketing)
+    recent_users = db.query(User).order_by(User.created_at.desc()).limit(5).all()
+    recent_registrations = [{
+        "id": u.id,
+        "username": u.username,
+        "created_at": str(u.created_at)
+    } for u in recent_users]
+
     return {
         "sales": {
             "total_revenue": total_revenue,
@@ -63,9 +104,16 @@ def get_dashboard_stats(
             "recent_orders": recent_orders,
             "top_products": top_products
         },
+        "inventory": {
+            "total_items": total_items,
+            "total_stock_value": total_stock_value,
+            "low_stock_items": low_stock_items
+        },
+        "category_performance": category_perf,
         "marketing": {
             "total_users": total_users,
             "total_enrollments": total_enrollments,
-            "total_activities": total_activities
+            "total_activities": total_activities,
+            "recent_registrations": recent_registrations
         }
     }

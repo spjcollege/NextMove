@@ -5,6 +5,7 @@ import { useAuth } from "../App";
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,17 +24,21 @@ function Auth() {
       const endpoint = isLogin ? "/auth/login" : "/auth/register";
       const body = isLogin
         ? { username, password }
-        : { username, email, password, full_name: fullName };
+        : { username, email, password, full_name: fullName, is_admin: isAdmin };
 
       const data = await apiFetch(endpoint, {
         method: "POST",
         body: JSON.stringify(body),
       });
 
+      if (isLogin && isAdmin && !data.user.is_admin) {
+          throw new Error("This account does not have admin privileges.");
+      }
+
       setAuth(data.token, data.user);
       login(data.token, data.user);
-      showToast(`Welcome${isLogin ? " back" : ""}, ${data.user.username}! ♔`);
-      navigate("/");
+      showToast(`Welcome ${isAdmin ? "Vendor" : ""}${isLogin ? " back" : ""}, ${data.user.username}! ♔`);
+      navigate(isAdmin ? "/admin/dashboard" : "/");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -54,6 +59,40 @@ function Auth() {
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: 4 }}>
             {isLogin ? "Sign in to your account" : "Create your chess journey"}
           </p>
+        </div>
+
+        <div style={{ 
+          display: "flex", 
+          background: "var(--bg-tertiary)", 
+          padding: "4px", 
+          borderRadius: "var(--radius-lg)", 
+          marginBottom: "24px",
+          border: "1px solid var(--border-default)"
+        }}>
+          <button 
+            onClick={() => { setIsAdmin(false); setError(""); }}
+            style={{
+              flex: 1, padding: "8px", borderRadius: "calc(var(--radius-lg) - 4px)",
+              background: !isAdmin ? "var(--brand-gold)" : "transparent",
+              color: !isAdmin ? "var(--bg-primary)" : "var(--text-secondary)",
+              border: "none", cursor: "pointer", fontWeight: 600, fontSize: "0.85rem",
+              transition: "all 0.2s"
+            }}
+          >
+            Customer
+          </button>
+          <button 
+            onClick={() => { setIsAdmin(true); setError(""); }}
+            style={{
+              flex: 1, padding: "8px", borderRadius: "calc(var(--radius-lg) - 4px)",
+              background: isAdmin ? "var(--brand-gold)" : "transparent",
+              color: isAdmin ? "var(--bg-primary)" : "var(--text-secondary)",
+              border: "none", cursor: "pointer", fontWeight: 600, fontSize: "0.85rem",
+              transition: "all 0.2s"
+            }}
+          >
+            Vendor / Admin
+          </button>
         </div>
 
         {error && (
